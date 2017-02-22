@@ -13,7 +13,7 @@ integer, parameter :: ghostLayers = 2
 
 
 ! NX and NY is the global grid size
-integer, parameter :: Nx = 428 , Ny = 533
+integer, parameter :: Nx = 4, Ny = 4
 integer, parameter :: xmin = 1
 integer, parameter :: xmax = Nx
 integer, parameter :: ymin = 1
@@ -63,11 +63,12 @@ contains
         allocate(image(Ntotal))   ! this is local one
 
         ! read digital image
-        Open(200,file='Processed_2D_Berea.dat',status='OLD')
-            do j=1,Ny
-                read(200, *) (array2D(i,j), i=1,Nx)
-            enddo
-        Close(200)
+        !Open(200,file='Processed_2D_Berea.dat',status='OLD')
+        !    do j=1,Ny
+        !        read(200, *) (array2D(i,j), i=1,Nx)
+        !    enddo
+        !Close(200)
+        array2D=0 !NOTE, for debug
 
         ! set array2D
         countVoidP = 0 ! count the void grid points
@@ -87,17 +88,39 @@ contains
 
         ! set local image
         do j = ylg, yug
-           do i = xlg, xug
+            do i = xlg, xug
                localid = (j-ylg)*Nxtotal + i-xlg+1
                image(localid) = array2D(i,j)
            enddo
         enddo
 
+        !Assign the outerboarder layers (called ghost point in serial program)
+        If (ghostLayers>0) then
+            Do j=ylg,yug
+                Do i=xlg,xug
+                    ! test if boundary processor, here the ghost flag doesn't means 
+                    ! the communication boundary, but only means the true global 
+                    ! outter boarder.
+                    If ((i<xmin).OR.(i>xmax).OR.(j<ymin).OR.(j>ymax)) then 
+                        localid = (j-ylg)*Nxtotal + i-xlg+1
+                        image(localid) = ghost
+                    End if
+                Enddo
+            Enddo
+        End if
 
+        bxl = xlg
+        bxu = xug
+        byl = ylg
+        byu = yug
+        if(xl == xmin) bxl = xl !if most west block(processor)
+        if(xu == xmax) bxu = xu !if most east block(processor)
+        if(yl == ymin) byl = yl !if most south block
+        if(yu == ymax) byu = yu !if most north block
         ! set wall points type based on sournding point type(f/s)
         nWall=0 ! count the wall points
-        Do j=ylg,yug
-            Do i=xlg,xug
+        Do j=byl,byu
+            Do i=bxl,bxu
                 localid = (j-ylg)*Nxtotal + i-xlg+1
                 If (array2D(i,j)==solid) then
                     NneighborFluid=1 !(1-2-3-4 in D2Q9 corresponding to 2-3-5-7)
@@ -173,29 +196,16 @@ contains
             Enddo
         Enddo
 
-        !Assign the outerboarder layers (called ghost point in serial program)
-        If (ghostLayers>0) then
-            Do j=ylg,yug
-                Do i=xlg,xug
-                    ! test if boundary processor, here the ghost flag doesn't means 
-                    ! the communication boundary, but only means the true global 
-                    ! outter boarder.
-                    If ((i<xmin).OR.(i>xmax).OR.(j<ymin).OR.(j>ymax)) then 
-                        localid = (j-ylg)*Nxtotal + i-xlg+1
-                        image(localid) = ghost
-                    End if
-                Enddo
-            Enddo
-        End if
-
         !Direction 1
         !bound
         bxl = xl
-        bxu = xu
+        bxu = xug
         byl = yl
-        byu = yu
+        byu = yug
         if(xl == xmin) bxl = xl + 1 !if most west block(processor)
         if(yl == ymin) byl = yl + 1 !if most south block
+        if(xu == xmax) bxu = xu     !if most east block(processor)
+        if(yu == ymax) byu = yu     !if most north block   
         !count fluid points when sweeping from 1st direction
         Nstencil1=0
         Do j=byl,byu
@@ -221,12 +231,14 @@ contains
 
         !Direction 2
         !bound
-        bxl = xl
+        bxl = xlg
         bxu = xu
         byl = yl
-        byu = yu
+        byu = yug
         if(xu == xmax) bxu = xu - 1 !if most east block
         if(yl == ymin) byl = yl + 1 !if most south block
+        if(xl == xmin) bxl = xl     !if most west block
+        if(yu == ymax) byu = yu     !if most north block
         !count fluid points when sweeping from 2nd direction
         Nstencil2=0
         Do j=byl,byu
@@ -252,13 +264,15 @@ contains
 
         !Direction 3
         !bound
-        bxl = xl
+        bxl = xlg
         bxu = xu
-        byl = yl
+        byl = ylg
         byu = yu
         if(xu == xmax) bxu = xu - 1 !if most east block
         if(yu == ymax) byu = yu - 1 !if most north block
-        !count fluid points when sweeping from 2nd direction
+        if(xl == xmin) bxl = xl     !if most west block
+        if(yl == ymin) byl = yl     !if most south block
+        !count fluid points when sweeping from 3rd direction
         Nstencil3=0
         Do j=byu,byl,-1
             Do i=bxu,bxl,-1
@@ -284,12 +298,14 @@ contains
         !Direction 4
         !bound
         bxl = xl
-        bxu = xu
-        byl = yl
+        bxu = xug
+        byl = ylg
         byu = yu
         if(xl == xmin) bxl = xl + 1 !if most west block
         if(yu == ymax) byu = yu - 1 !if most north block
-        !count fluid points when sweeping from 2nd direction
+        if(xu == xmax) bxu = xu     !if most east block
+        if(yl == ymin) byl = yl     !if most south block
+        !count fluid points when sweeping from 4th direction
         Nstencil4=0
         Do j=byu,byl,-1
             Do i=bxl,bxu

@@ -4,7 +4,7 @@ SHELL = /bin/sh
 MPIFC=mpif90
 FC=gfortran
 LFLAGS= -O2
-CFLAGS= -c -O2
+CFLAGS= -c -g
 
 # Intel Fortran setting
 

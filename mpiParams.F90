@@ -17,7 +17,7 @@ INTEGER, PARAMETER :: TAG1 = 1, TAG2 = 2, TAG3 = 3, TAG4 = 4
 ! Communication parameters
 INTEGER :: nprocs, proc, vproc
 INTEGER, parameter :: mpi_xdim = 2
-INTEGER, parameter :: mpi_ydim = 2
+INTEGER, parameter :: mpi_ydim = 1
 INTEGER :: east, west, north, south, MPI_COMM_VGRID
 INTEGER, PARAMETER :: master  = 0
 INTEGER, PARAMETER :: mpi_dim = 2
@@ -75,9 +75,14 @@ contains
         !Create the new virtual connectivity grid
         CALL MPI_CART_CREATE(MPI_COMM_WORLD, mpi_dim, dims, periodic, reorder, MPI_COMM_VGRID, MPI_ERR)
         
+        write(*,*) "I'm ",  proc
+
         !Get this processor ID within the virtual grid
         CALL MPI_COMM_RANK(MPI_COMM_VGRID, vproc, MPI_ERR)
+        !write(*,*) "vproc = ",  vproc
+
         CALL MPI_CART_COORDS(MPI_COMM_VGRID, vproc, mpi_dim, mpi_coords, MPI_ERR)
+        !PRINT*, "After first mpi_cart_coords", proc
         
         !------- Compute the limits [(xl,xu),(yl,yu)] assigned to this processor ------
         !Partitioning in the x direction
@@ -122,17 +127,18 @@ contains
         ! west/east and sourth/north has been assigned above
         
         !Coordinates of neighbours of this processor in the x and y directions
-        CALL MPI_CART_COORDS(MPI_COMM_VGRID, east, mpi_dim, mpi_coords, MPI_ERR)
-        xeast = mpi_coords(1)
-        
-        CALL MPI_CART_COORDS(MPI_COMM_VGRID, west, mpi_dim, mpi_coords, MPI_ERR)
-        xwest = mpi_coords(1)
-        
-        CALL MPI_CART_COORDS(MPI_COMM_VGRID, north, mpi_dim, mpi_coords, MPI_ERR)
-        ynorth = mpi_coords(2)
-        
-        CALL MPI_CART_COORDS(MPI_COMM_VGRID, south, mpi_dim, mpi_coords, MPI_ERR)
-        ysouth = mpi_coords(2)
+        !CALL MPI_CART_COORDS(MPI_COMM_VGRID, east, mpi_dim, mpi_coords, MPI_ERR)
+        !xeast = mpi_coords(1)
+        !PRINT*, "After 2 mpi_cart_coords", proc
+        !CALL MPI_CART_COORDS(MPI_COMM_VGRID, west, mpi_dim, mpi_coords, MPI_ERR)
+        !xwest = mpi_coords(1)
+        !PRINT*, "After 3 mpi_cart_coords", proc
+        !CALL MPI_CART_COORDS(MPI_COMM_VGRID, north, mpi_dim, mpi_coords, MPI_ERR)
+        !ynorth = mpi_coords(2)
+        !PRINT*, "After 4 mpi_cart_coords", proc
+        !CALL MPI_CART_COORDS(MPI_COMM_VGRID, south, mpi_dim, mpi_coords, MPI_ERR)
+        !ysouth = mpi_coords(2)
+        !RINT*, "After 5 mpi_cart_coords", proc
         
     end subroutine setupVirtualProcessGrid
 end module mpiParams

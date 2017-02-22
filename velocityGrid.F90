@@ -59,12 +59,12 @@ contains
             DiffFlux=DiffFlux+cy(l)*w(l)
         Enddo
 
-        open(10,file='Test.dat',STATUS="REPLACE")
-        write(10,*) 'Velocity space D2Q16: l, cx, cy, w, oppositeX, oppositeY'
-        Do l=1,Nc
-            write(10,*) l, cx(l), cy(l), w(l), oppositeX(l), oppositeY(l)
-        Enddo
-        close(10)
+        !open(10,file='Test.dat',STATUS="REPLACE")
+        !write(10,*) 'Velocity space D2Q16: l, cx, cy, w, oppositeX, oppositeY'
+        !Do l=1,Nc
+        !    write(10,*) l, cx(l), cy(l), w(l), oppositeX(l), oppositeY(l)
+        !Enddo
+        !close(10)
     end subroutine setupVelocityGrid
 
 end module velocityGrid

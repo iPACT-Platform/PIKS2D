@@ -8,8 +8,8 @@ use mpiParams
 implicit none
 
 double precision, parameter :: eps=1.d-10
-integer, parameter :: maxStep = 100000000
-integer, parameter :: interval = 1000
+integer, parameter :: maxStep = 100
+integer, parameter :: interval = 100
 integer :: iStep
 double precision :: error
 
@@ -25,7 +25,7 @@ contains
     subroutine sweep
         use MPI
     	implicit none
-        integer :: k, l, i, j
+        integer :: k, l, i, j, shiftl, shiftu
         INTEGER :: MPI_ERR
         INTEGER :: MPI_REQ_X(4), MPI_REQ_Y(4)
         INTEGER :: MPI_STAT(MPI_STATUS_SIZE,4)
@@ -33,7 +33,7 @@ contains
         integer :: ysize
         double precision :: feq
 
-        xsize =  Nytotal*Nc/2*ghostLayers
+        xsize = Nytotal*Nc/2*ghostLayers
         ysize = Nxtotal*Nc/2*ghostLayers
         ! Start Recieving
         CALL MPI_IRECV( f1_east_rcv, xsize, MPI_DOUBLE_PRECISION, east,  TAG1, &
@@ -153,23 +153,27 @@ contains
         CALL MPI_WAITALL(4, MPI_REQ_Y, MPI_STAT, MPI_ERR)
 
         ! pack&unpack west&east buffer
+        shiftl = 0
+        shiftu = 0
+        if(xl==xmin) shiftl = ghostLayers
+        if(xu==xmax) shiftu = ghostLayers
         do j = 1, Nytotal
         	do i = 1, ghostLayers
         	    do l = Nc/4+1, Nc*3/4 ! dir 2 and 3
                     f1_west_snd((j-1)*ghostLayers*Nc/2 + (i-1)*Nc/2 + l-Nc/4) &
-                    &  = f1((j-1)*Nxtotal + i, l)
+                    &  = f1((j-1)*Nxtotal + i+shiftl, l)
                     f1((j-1)*Nxtotal + i+Nxsub+ghostLayers, l) = &
                     &   f1_east_rcv((j-1)*ghostLayers*Nc/2 + (i-1)*Nc/2 + l-Nc/4)
                 enddo
                 do l = 1, Nc/4      !dir 1
                     f1_east_snd((j-1)*ghostLayers*Nc/2 + (i-1)*Nc/2 + l) &
-                    &  = f1((j-1)*Nxtotal + i+Nxsub+ghostLayers, l)
+                    &  = f1((j-1)*Nxtotal + i+Nxsub+ghostLayers-shiftu, l)
                     f1((j-1)*Nxtotal + i, l) = &
                     &   f1_west_rcv((j-1)*ghostLayers*Nc/2 + (i-1)*Nc/2 + l)                   
                 enddo
                 do l = Nc*3/4+1, Nc ! dir 4
                     f1_east_snd((j-1)*ghostLayers*Nc/2 + (i-1)*Nc/2 + l-Nc/2) &
-                    &  = f1((j-1)*Nxtotal + i+Nxsub+ghostLayers, l)
+                    &  = f1((j-1)*Nxtotal + i+Nxsub+ghostLayers-shiftu, l)
                     f1((j-1)*Nxtotal + i, l) = &
                     &   f1_west_rcv((j-1)*ghostLayers*Nc/2 + (i-1)*Nc/2 + l-Nc/2)                   
                 enddo
@@ -486,12 +490,11 @@ contains
         massLocal = (massInner + massSouth + massNorth) * 2.d0 / PressDrop
 
         ! reduction
-        call MPI_REDUCE(massLocal, mass2, 1, MPI_DOUBLE_PRECISION, MPI_SUM, &
-                        master, MPI_COMM_VGRID, MPI_ERR)
-
-        if (proc == master) then 
-            error=dabs(1.d0-mass2/mass)/(interval)
-            mass=mass2
+        call MPI_ALLREDUCE(massLocal, mass2, 1, MPI_DOUBLE_PRECISION, MPI_SUM, &
+                           MPI_COMM_VGRID, MPI_ERR)
+        error=dabs(1.d0-mass2/mass)/(interval)
+        mass=mass2
+        if (proc == master) then           
             permeability=mass*Kn*sqrt(4.d0/PI)*(Nx-1)/(Ny-1)/2    
             write(*,"( 1I10, 3ES15.6)")  iStep,  mass,  permeability, error
             open(22,file='Results.dat', position="append")

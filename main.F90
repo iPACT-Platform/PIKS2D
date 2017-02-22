@@ -16,22 +16,28 @@ CALL MPI_COMM_RANK(MPI_COMM_WORLD, proc, MPI_ERR)
 
 ! setup discrete velocity grid
 CALL setupVelocityGrid
+PRINT*, "After setupVelocityGrid"
 ! read and create virtual CPU grid
 CALL setupVirtualProcessGrid
+PRINT*, "After setupVirtualProcessGrid"
 ! setup global and local grid system
 CALL setupPhysicalGrid
+PRINT*, "After setupPhysicalGrid"
 ! allocate flow data array and initialize
 CALL setupFlow
+PRINT*, "After setupFlow"
 
+! set error
+error = 1.D0
 ! Main iteration loop
 DO iStep = 1, MaxStep
 ! Save data if required
+    CALL iterate
+    if(proc==master) PRINT*, "STEP: ", iStep
     IF ( MOD(iStep,interval) == 0 ) CALL chkConverge
     IF ( MOD(iStep,interval) == 0 ) CALL saveFlowField
 ! Test flow field convergence
     IF ( error <= eps ) then
-        call memFree               ! don't forget free mems
-        call MPI_FINALIZE(MPI_ERR) ! safe exit
         EXIT
     ENDIF
 END DO
