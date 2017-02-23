@@ -1,8 +1,8 @@
 SHELL = /bin/sh
 
 # GNU Fotran setting
-MPIFC=mpif90
-FC=gfortran
+MPIFC=mpiifort
+FC=ifort
 LFLAGS= -O2
 CFLAGS= -c -g
 

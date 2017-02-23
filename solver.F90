@@ -8,7 +8,7 @@ use mpiParams
 implicit none
 
 double precision, parameter :: eps=1.d-10
-integer, parameter :: maxStep = 100
+integer, parameter :: maxStep = 3
 integer, parameter :: interval = 100
 integer :: iStep
 double precision :: error
@@ -18,13 +18,21 @@ contains
         call sweep
         call BCwall
         call BCinletOutlet
+
+        PRINT*, "Ftest1 =", f1((ghostLayers+10)*Nxtotal + ghostLayers+1,1)
+        !PRINT*, "Ftest5 =", f1(ghostLayers*Nxtotal + ghostLayers+1,5)
+        !PRINT*, "Ftest9 =", f1(ghostLayers*Nxtotal + ghostLayers+1,9)
+        PRINT*, "Ftest13=", f1((ghostLayers+10)*Nxtotal + ghostLayers+1,13)
+
         call BCsymmetry
         call updateMacro
+        !Debug
+        !PRINT*, Rho((yl-ylg)*Nxtotal + xl-xlg+1)
     end subroutine iterate
 
     subroutine sweep
         use MPI
-    	implicit none
+        implicit none
         integer :: k, l, i, j, shiftl, shiftu
         INTEGER :: MPI_ERR
         INTEGER :: MPI_REQ_X(4), MPI_REQ_Y(4)
@@ -74,7 +82,7 @@ contains
                 &        + cy(l)*coefI(i,6)*f1(k-2*Nxtotal,l) &
                 & )/(0.5d0*mu+cx(l)*coefI(i,1)+cy(l)*coefI(i,4))   
             End do
-   	    End do
+        End do
 
         ! sweep direction 2
         Do l=Nc/4+1,Nc/2
@@ -158,8 +166,8 @@ contains
         if(xl==xmin) shiftl = ghostLayers
         if(xu==xmax) shiftu = ghostLayers
         do j = 1, Nytotal
-        	do i = 1, ghostLayers
-        	    do l = Nc/4+1, Nc*3/4 ! dir 2 and 3
+            do i = 1, ghostLayers
+                do l = Nc/4+1, Nc*3/4 ! dir 2 and 3
                     f1_west_snd((j-1)*ghostLayers*Nc/2 + (i-1)*Nc/2 + l-Nc/4) &
                     &  = f1((j-1)*Nxtotal + i+shiftl, l)
                     f1((j-1)*Nxtotal + i+Nxsub+ghostLayers, l) = &
@@ -394,27 +402,30 @@ contains
     subroutine BCinletOutlet
         implicit none
         integer :: i, j, k, l
-        if(xl == xmin) then ! inlet block (west most processor)
+        if(xl==xmin) then ! inlet block (west most processor)
             Do j = yl, yu
                 i = xl
                 k = (j-ylg)*Nxtotal + i-xlg+1
                 !inlet
                 Do l=1,Nc/4
-                    f1(k,l)=f1(k-1,l)+w(l)*PressDrop !lhzhu, need other block's info, so vgrid is perodical in x dir
+                    f1(k,l)=f1(k-1+Nxsub,l)+w(l)*PressDrop !lhzhu, need other block's info, so vgrid is perodical in x dir
+                    !f1(k,l)=f1(k-1,l)+w(l)*PressDrop !lhzhu, need other block's info, so vgrid is perodical in x dir
                 Enddo   
                 Do l=3*Nc/4+1,Nc
-                    f1(k,l)=f1(k-1,l)+w(l)*PressDrop
+                    f1(k,l)=f1(k-1+Nxsub,l)+w(l)*PressDrop ! NOTE, for NprocX=1
+                    !f1(k,l)=f1(k-1,l)+w(l)*PressDrop ! NOTE, for NprocX=1
                 Enddo
             End do
         endif
 
-        if(xu == xmax) then ! outlet block (east most processor)
+        if(xu==xmax) then ! outlet block (east most processor)
             Do j = yl, yu
                 i = xu
                 k = (j-ylg)*Nxtotal + i-xlg+1
                 !outlet
                 Do l=Nc/4+1,3*Nc/4          
-                    f1(k,l)=f1(k+1,l)-w(l)*PressDrop
+                    f1(k,l)=f1(k-Nxsub+1,l)-w(l)*PressDrop ! NOTE, for NprocX=1
+                    !f1(k,l)=f1(k+1,l)-w(l)*PressDrop ! NOTE, for NprocX=1
                 Enddo
             Enddo            
         endif
@@ -423,24 +434,28 @@ contains
     subroutine BCsymmetry
         implicit none
         integer :: i, j, k, l
-        Do i=xl, xu
-            !bottom plane
-            k = ghostLayers*Nxtotal + i-xlg+1
-            Do l=1,Nc/2
-                 f1(k,l)=f1(k,oppositeY(l))
+        if(yl==ymin) then ! south
+            Do i=xl, xu
+                k = ghostLayers*Nxtotal + i-xlg+1
+                Do l=1,Nc/2
+                     f1(k,l)=f1(k,oppositeY(l))
+                End do
+            enddo
+        endif
+        if(yu==ymax) then ! north
+            Do i=xl, xu
+                k = (Nysub+ghostLayers-1)*Nxtotal + i-xlg+1
+                Do l=Nc/2+1,Nc
+                     f1(k,l)=f1(k,oppositeY(l))
+                End do
             End do
-            !top plane  
-            k = (Nysub+ghostLayers-1)*Nxtotal + i-xlg+1
-            Do l=Nc/2+1,Nc
-                 f1(k,l)=f1(k,oppositeY(l))
-            End do
-        End do
+        endif
     end subroutine BCsymmetry
 
     subroutine updateMacro
     implicit none
     integer :: k, l, j
-    	Do k=1,Ntotal
+       Do k=1,Ntotal
             Rho(k)=0.d0
             Ux(k)=0.d0
             Uy(k)=0.d0
@@ -510,7 +525,7 @@ contains
         open(20,file=fname,STATUS="REPLACE")
         write(20,*) ' TITLE=" Field"'
         write(20,*) ' VARIABLES=x,y,Rho,Ux,Uy'
-        write(20,*) ' ZONE T=final, I=', Nxsub,', J=', Nysub,', F=POINT'
+        write(20,'(A,I0.3,A,I,A,I,A)') ' ZONE T=proc', proc, ', I=', Nxsub,', J=', Nysub,', F=POINT'
 
         Do j=yl,yu
             Do i=xl,xu

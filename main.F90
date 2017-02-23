@@ -33,7 +33,7 @@ error = 1.D0
 DO iStep = 1, MaxStep
 ! Save data if required
     CALL iterate
-    if(proc==master) PRINT*, "STEP: ", iStep
+    !if(proc==master) PRINT*, "STEP: ", iStep
     IF ( MOD(iStep,interval) == 0 ) CALL chkConverge
     IF ( MOD(iStep,interval) == 0 ) CALL saveFlowField
 ! Test flow field convergence

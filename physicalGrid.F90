@@ -13,7 +13,7 @@ integer, parameter :: ghostLayers = 2
 
 
 ! NX and NY is the global grid size
-integer, parameter :: Nx = 4, Ny = 4
+integer, parameter :: Nx = 120, Ny = 120
 integer, parameter :: xmin = 1
 integer, parameter :: xmax = Nx
 integer, parameter :: ymin = 1
@@ -69,6 +69,13 @@ contains
         !    enddo
         !Close(200)
         array2D=0 !NOTE, for debug
+        !for debug
+        do j = 1, 10
+            array2D(:,j) = 1
+        end do
+        do j = 110, 120
+            array2D(:,j) = 1
+        end do
 
         ! set array2D
         countVoidP = 0 ! count the void grid points
@@ -87,8 +94,16 @@ contains
         real_porosity=real(countVoidP)/real(Nx*Ny)
 
         ! set local image
-        do j = ylg, yug
-            do i = xlg, xug
+        bxl = xlg
+        byl = ylg
+        bxu = xug
+        byu = yug
+        if(xl == xmin) bxl = xl !if most west block(processor)
+        if(xu == xmax) bxu = xu !if most east block(processor)
+        if(yl == ymin) byl = yl !if most south block
+        if(yu == ymax) byu = yu !if most north block
+        do j = byl, byu
+            do i = bxl, bxu
                localid = (j-ylg)*Nxtotal + i-xlg+1
                image(localid) = array2D(i,j)
            enddo

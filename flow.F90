@@ -8,7 +8,7 @@ save
 
 double precision, parameter :: Kn = 0.1
 double precision, parameter :: mu = dsqrt(PI)/2.0d0/Kn
-double precision, parameter :: PressDrop=0.0d-3
+double precision, parameter :: PressDrop=1.0d-3
 double precision, parameter :: accom = 1.d0
 
 double precision, DIMENSION(:,:), ALLOCATABLE :: f1
@@ -17,7 +17,7 @@ double precision :: mass
 
 contains
     subroutine setupFlow     
-    	use physicalGrid, only: Ntotal, Nxtotal, Nytotal, ghostLayers
+        use physicalGrid, only: Ntotal, Nxtotal, Nytotal, ghostLayers
         use velocityGrid, only: Nc
         use mpiParams, only: f1_west_snd, f1_east_snd, f1_west_rcv, f1_east_rcv, &
                              f1_south_snd, f1_north_snd, f1_south_rcv, f1_north_rcv
