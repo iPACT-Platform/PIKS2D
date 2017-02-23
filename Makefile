@@ -3,7 +3,7 @@ SHELL = /bin/sh
 # GNU Fotran setting
 MPIFC=mpiifort
 FC=ifort
-LFLAGS= -O2
+LFLAGS= 
 CFLAGS= -c -g
 
 # Intel Fortran setting

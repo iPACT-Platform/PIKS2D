@@ -51,6 +51,7 @@ contains
         ! local vars
         integer :: localid, i, j, icount, countVoidP, NneighborFluid
         integer :: bxl, bxu, byl, byu ! bound when counting fluid point for sweeping
+        integer :: ii, jj
 
         ! set the extend and sizes
         Nxtotal = xug - xlg + 1
@@ -134,15 +135,23 @@ contains
         if(yu == ymax) byu = yu !if most north block
         ! set wall points type based on sournding point type(f/s)
         nWall=0 ! count the wall points
+        !print*, bxl, bxu, byl, byu
         Do j=byl,byu
             Do i=bxl,bxu
+                !ii = i-xl+1
+                !jj = j-yl+1
                 localid = (j-ylg)*Nxtotal + i-xlg+1
                 If (array2D(i,j)==solid) then
                     NneighborFluid=1 !(1-2-3-4 in D2Q9 corresponding to 2-3-5-7)
-                    If (array2D(i+1, j)==fluid)  NneighborFluid=NneighborFluid*2   !Check neighbor on the East(2)
-                    If (array2D(i, j+1)==fluid)  NneighborFluid=NneighborFluid*3   !Check neighbor on the North(3)
-                    If (array2D(i-1, j)==fluid)  NneighborFluid=NneighborFluid*5   !Check neighbor on the West(5)
-                    If (array2D(i, j-1)==fluid)  NneighborFluid=NneighborFluid*7   !Check neighbor on the South(7)
+                    ! found bug here, array index out of bound of array2D
+                    If (image(localid+1)==fluid)  NneighborFluid=NneighborFluid*2   !Check neighbor on the East(2)
+                    If (image(localid+Nxtotal)==fluid)  NneighborFluid=NneighborFluid*3   !Check neighbor on the North(3)
+                    If (image(localid-1)==fluid)  NneighborFluid=NneighborFluid*5   !Check neighbor on the West(5)
+                    If (image(localid-Nxtotal)==fluid)  NneighborFluid=NneighborFluid*7   !Check neighbor on the South(7)
+                    !If (array2D(i+1, j)==fluid)  NneighborFluid=NneighborFluid*2   !Check neighbor on the East(2)
+                    !If (array2D(i, j+1)==fluid)  NneighborFluid=NneighborFluid*3   !Check neighbor on the North(3)
+                    !If (array2D(i-1, j)==fluid)  NneighborFluid=NneighborFluid*5   !Check neighbor on the West(5)
+                    !If (array2D(i, j-1)==fluid)  NneighborFluid=NneighborFluid*7   !Check neighbor on the South(7)
 
                     SELECT Case (NneighborFluid)
                         CASE (2)
@@ -173,7 +182,6 @@ contains
                 Endif
             Enddo
         Enddo
-
 
         ! Create wall-type vectors
         !vecWall(walli) mark the global id of the walli'th wall in the image 

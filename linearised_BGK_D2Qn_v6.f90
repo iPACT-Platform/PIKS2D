@@ -83,7 +83,7 @@ double precision :: RhoWall
 
 integer, parameter :: column=2 ! layer to extract flow rate
 double precision,parameter :: PressDrop=1.0d-3 !Pressure drop
-integer, parameter :: iteration_max=100,iteration_min=3,interval=1000
+integer, parameter :: iteration_max=100,iteration_min=2,interval=1000
 !double precision :: ds = 1.d0/(Nx-1) !uniform grid spacing in physical space
 double precision :: ds = 0.5d0/(Ny-1) !uniform grid spacing in physical space
 !double precision :: dt  !uniform grid spacing in  time space
@@ -640,6 +640,7 @@ Do WHILE ((iteration1<iteration_min))
 !!$OMP SHARED() &
 !!$OMP SHARED()
 
+PRINT*, "Before sweep Ftest1 =", f1((ghostLayer+10)*Nxtotal + ghostLayer+1+1,1)
 !$OMP DO SCHEDULE(STATIC) 
     Do l=1,Nc/4
         Do i=1,Nstencil1
@@ -662,6 +663,7 @@ Do WHILE ((iteration1<iteration_min))
         End do
     End do
 !$OMP END DO NOWAIT 
+PRINT*, "After  sweep Ftest1 =", f1((ghostLayer+10)*Nxtotal + ghostLayer+1+1,1)
 !------------------------------------------------------------------------
 !           In the 2nd group of direction cx<0 & cy>0
 !------------------------------------------------------------------------
@@ -967,10 +969,10 @@ Do WHILE ((iteration1<iteration_min))
     End do  
 !$OMP END DO   
 
-PRINT*, "Ftest1 =", f1((ghostLayer+10)*Nxtotal + ghostLayer+1,1)
+!PRINT*, "Ftest1 =", f1((ghostLayer+10)*Nxtotal + ghostLayer+1,1)
 !PRINT*, "Ftest5 =", f1(ghostLayer*Nxtotal + ghostLayer+1,5)
 !PRINT*, "Ftest9 =", f1(ghostLayer*Nxtotal + ghostLayer+1,9)
-PRINT*, "Ftest13=", f1((ghostLayer+10)*Nxtotal + ghostLayer+1,13)
+!PRINT*, "Ftest13=", f1((ghostLayer+10)*Nxtotal + ghostLayer+1,13)
 
 !=======================================================================
 !     Boundary condition on symmetric planes
@@ -1031,7 +1033,7 @@ PRINT*, "Ftest13=", f1((ghostLayer+10)*Nxtotal + ghostLayer+1,13)
 !$OMP END PARALLEL  
 !Debug
 
-PRINT*, Rho(ghostLayer*Nxtotal + ghostLayer+1)
+!PRINT*, Rho(ghostLayer*Nxtotal + ghostLayer+1)
 !PRINT*, "cx16 =", cx(5)
 !PRINT*, "cx16 =", cy(5)
 

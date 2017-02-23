@@ -2,7 +2,7 @@
 !> @brief Physical space configurations
 !=======================================================================
 module velocityGrid
-integer, parameter :: Nc_fundamental=3 !Number of fundamental molecular velocity
+integer, parameter :: Nc_fundamental=2 !Number of fundamental molecular velocity
 integer, parameter :: Nc=(2*Nc_fundamental)**2 !Number of moleculer velocity in 2D-Gaussian Hermite
 integer, parameter :: Vmax=5
 integer, parameter :: power_law=3
