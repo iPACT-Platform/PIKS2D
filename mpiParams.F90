@@ -16,8 +16,8 @@ INTEGER, PARAMETER :: TAG1 = 1, TAG2 = 2, TAG3 = 3, TAG4 = 4
 
 ! Communication parameters
 INTEGER :: nprocs, proc, vproc
-INTEGER, parameter :: mpi_xdim = 1
-INTEGER, parameter :: mpi_ydim = 2
+INTEGER, parameter :: mpi_xdim = 4
+INTEGER, parameter :: mpi_ydim = 4
 INTEGER :: east, west, north, south, MPI_COMM_VGRID
 INTEGER, PARAMETER :: master  = 0
 INTEGER, PARAMETER :: mpi_dim = 2
@@ -31,6 +31,11 @@ double precision, ALLOCATABLE, DIMENSION(:) :: f1_west_rcv, f1_east_rcv
 double precision, ALLOCATABLE, DIMENSION(:) :: f1_south_snd, f1_north_snd
 double precision, ALLOCATABLE, DIMENSION(:) :: f1_south_rcv, f1_north_rcv
 
+!
+INTEGER :: mpi_group_inlet
+INTEGER :: mpi_group_global
+INTEGER :: mpi_comm_inlet
+INTEGER :: inlet_rank(mpi_ydim)
 contains
 !-------------------------------------------------------------------------------
 ! Subroutine : setupVirtualProcessGrid
@@ -62,6 +67,7 @@ contains
         INTEGER, DIMENSION(1:mpi_dim) :: dims, mpi_coords
         LOGICAL, DIMENSION(1:mpi_dim) :: periodic
         LOGICAL :: reorder
+        INTEGER :: j
         
         !Initialize data for domain partitioning. Defaults are:
         !Partitioning is periodic in all dimensions (periodic = .true.)
@@ -75,8 +81,6 @@ contains
         !Create the new virtual connectivity grid
         CALL MPI_CART_CREATE(MPI_COMM_WORLD, mpi_dim, dims, periodic, reorder, MPI_COMM_VGRID, MPI_ERR)
         
-        write(*,*) "I'm ",  proc
-
         !Get this processor ID within the virtual grid
         CALL MPI_COMM_RANK(MPI_COMM_VGRID, vproc, MPI_ERR)
         !write(*,*) "vproc = ",  vproc
@@ -139,6 +143,14 @@ contains
         !CALL MPI_CART_COORDS(MPI_COMM_VGRID, south, mpi_dim, mpi_coords, MPI_ERR)
         !ysouth = mpi_coords(2)
         !RINT*, "After 5 mpi_cart_coords", proc
-        
+
+        ! Create 
+        CALL MPI_COMM_GROUP(MPI_COMM_VGRID, mpi_group_global, MPI_ERR)
+        do j = 1, mpi_ydim
+            inlet_rank(j) = j-1
+        enddo
+
+        CALL MPI_GROUP_INCL(mpi_group_global, mpi_ydim, inlet_rank, mpi_group_inlet, MPI_ERR)
+        CALL MPI_COMM_CREATE(MPI_COMM_VGRID, mpi_group_inlet, mpi_comm_inlet, MPI_ERR)
     end subroutine setupVirtualProcessGrid
 end module mpiParams

@@ -70,12 +70,12 @@ contains
         !    enddo
         !Close(200)
         array2D=0 !NOTE, for debug
-        !for debug
+        !!for debug
         do j = 1, 10
-            array2D(:,j) = 1
+           array2D(:,j) = 1
         end do
         do j = 110, 120
-            array2D(:,j) = 1
+           array2D(:,j) = 1
         end do
 
         ! set array2D
@@ -95,6 +95,7 @@ contains
         real_porosity=real(countVoidP)/real(Nx*Ny)
 
         ! set local image
+        image = fluid
         bxl = xlg
         byl = ylg
         bxu = xug

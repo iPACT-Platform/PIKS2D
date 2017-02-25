@@ -405,7 +405,7 @@ contains
         implicit none
         integer :: i, j, k, l
         if(xl==xmin) then ! inlet block (west most processor)
-            Do j = yl, yu
+            Do j = ylg, yug
                 i = xl
                 k = (j-ylg)*Nxtotal + i-xlg+1
                 !inlet
@@ -423,7 +423,7 @@ contains
         endif
 
         if(xu==xmax) then ! outlet block (east most processor)
-            Do j = yl, yu
+            Do j = ylg, yug
                 i = xu
                 k = (j-ylg)*Nxtotal + i-xlg+1
                 !outlet
@@ -496,30 +496,30 @@ contains
                 k=(j-ylg)*Nxtotal + column+ghostLayers
                 massInner=massInner+Ux(k)*ds
             enddo
-        endif
+            if(yl == ymin) then !only south most processors
+                massSouth = 0.5d0*ds*Ux(ghostLayers+column + (yl-ylg)*Nxtotal)
+            endif
+            if (yu == ymax) then !only north most processors
+                massNorth = 0.5d0*ds*Ux(ghostLayers+column + (ghostLayers+Nysub)*Nxtotal)
+            endif
+            massLocal = (massInner + massSouth + massNorth) * 2.d0 / PressDrop
 
-        if(yl == ymin) then !only south most processors
-            massSouth = 0.5d0*ds*Ux(ghostLayers+column + (yl-ylg)*Nxtotal)
-        endif
+            ! reduction
+            call MPI_ALLREDUCE(massLocal, mass2, 1, MPI_DOUBLE_PRECISION, MPI_SUM, &
+                               mpi_comm_inlet, MPI_ERR)
 
-        if (yu == ymax) then !only north most processors
-            massNorth = 0.5d0*ds*Ux(ghostLayers+column + (ghostLayers+Nysub)*Nxtotal)
+            error=dabs(1.d0-mass2/mass)/(interval)
+            mass=mass2
+            if (proc == master) then           
+                permeability=mass*Kn*sqrt(4.d0/PI)*(Nx-1)/(Ny-1)/2    
+                write(*,"( 1I10, 3ES15.6)")  iStep,  mass,  permeability, error
+                open(22,file='Results.dat', position="append")
+                write(22,'(4ES15.6, 1I15)') Kn, mass, permeability, error, iStep
+                close(22)
+            endif
         endif
-        
-        massLocal = (massInner + massSouth + massNorth) * 2.d0 / PressDrop
-
-        ! reduction
-        call MPI_ALLREDUCE(massLocal, mass2, 1, MPI_DOUBLE_PRECISION, MPI_SUM, &
-                           MPI_COMM_VGRID, MPI_ERR)
-        error=dabs(1.d0-mass2/mass)/(interval)
-        mass=mass2
-        if (proc == master) then           
-            permeability=mass*Kn*sqrt(4.d0/PI)*(Nx-1)/(Ny-1)/2    
-            write(*,"( 1I10, 3ES15.6)")  iStep,  mass,  permeability, error
-            open(22,file='Results.dat', position="append")
-            write(22,'(4ES15.6, 1I15)') Kn, mass, permeability, error, iStep
-            close(22)
-        endif
+        !bcast error so every process in WORLD can stop
+        CALL MPI_BCAST(error, 1, MPI_DOUBLE_PRECISION, master, MPI_COMM_VGRID, MPI_ERR)
     end subroutine chkConverge
 
     subroutine saveFlowField

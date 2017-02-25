@@ -16,16 +16,12 @@ CALL MPI_COMM_RANK(MPI_COMM_WORLD, proc, MPI_ERR)
 
 ! setup discrete velocity grid
 CALL setupVelocityGrid
-PRINT*, "After setupVelocityGrid"
 ! read and create virtual CPU grid
 CALL setupVirtualProcessGrid
-PRINT*, "After setupVirtualProcessGrid"
 ! setup global and local grid system
 CALL setupPhysicalGrid
-PRINT*, "After setupPhysicalGrid"
 ! allocate flow data array and initialize
 CALL setupFlow
-PRINT*, "After setupFlow"
 
 ! set error
 error = 1.D0
