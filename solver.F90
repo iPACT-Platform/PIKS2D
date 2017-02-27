@@ -8,44 +8,31 @@ use mpiParams
 implicit none
 
 double precision, parameter :: eps=1.d-10
-integer, parameter :: maxStep = 2000
-integer, parameter :: interval = 100
+integer, parameter :: maxStep = 200000
+integer, parameter :: interval = 1000
 integer :: iStep
 double precision :: error
 
 contains
     subroutine iterate
-        !PRINT*, "Before sweep Ftest1 =", f1((ghostLayers+10)*Nxtotal + ghostLayers+1+1,1)
-        call sweep
-        !PRINT*, "After  sweep Ftest1 =", f1((ghostLayers+10)*Nxtotal + ghostLayers+1+1,1)
-        call BCwall
-        call BCinletOutlet
-
-        !PRINT*, "Ftest1 =", f1((ghostLayers+10)*Nxtotal + ghostLayers+1,1)
-        !PRINT*, "Ftest5 =", f1(ghostLayers*Nxtotal + ghostLayers+1,5)
-        !PRINT*, "Ftest9 =", f1(ghostLayers*Nxtotal + ghostLayers+1,9)
-        !PRINT*, "Ftest13=", f1((ghostLayers+10)*Nxtotal + ghostLayers+1,13)
-
-        call BCsymmetry
-        call updateMacro
-        !Debug
-        !PRINT*, Rho((yl-ylg)*Nxtotal + xl-xlg+1)
-    end subroutine iterate
-
-    subroutine sweep
         use MPI
         implicit none
         integer :: k, l, i, j, shiftl, shiftu
         INTEGER :: MPI_ERR
         INTEGER :: MPI_REQ_X(4), MPI_REQ_Y(4)
         INTEGER :: MPI_STAT(MPI_STATUS_SIZE,4)
-        integer :: xsize
-        integer :: ysize
-        double precision :: feq
+        integer :: xsize, ysize
+        double precision :: feq, RhoWall
 
         xsize = Nytotal*Nc/2*ghostLayers
         ysize = Nxtotal*Nc/2*ghostLayers
+
+!$OMP PARALLEL &
+!$OMP DEFAULT(SHARED) &
+!$OMP PRIVATE(l, i, k, fEq, RhoWall)
+
         ! Start Recieving
+!$OMP SINGLE
         CALL MPI_IRECV( f1_east_rcv, xsize, MPI_DOUBLE_PRECISION, east,  TAG1, &
                         MPI_COMM_VGRID, MPI_REQ_X(1), MPI_ERR )
         CALL MPI_IRECV( f1_west_rcv, xsize, MPI_DOUBLE_PRECISION, west,  TAG2, &
@@ -63,8 +50,10 @@ contains
         CALL MPI_ISEND( f1_south_snd, ysize, MPI_DOUBLE_PRECISION, south, TAG3, &
                         MPI_COMM_VGRID, MPI_REQ_Y(3), MPI_ERR )
         CALL MPI_ISEND( f1_north_snd, ysize, MPI_DOUBLE_PRECISION, north, TAG4, &
-                        MPI_COMM_VGRID, MPI_REQ_Y(4), MPI_ERR )
+                        MPI_COMM_VGRID, MPI_REQ_Y(4), MPI_ERR )       
+!$OMP END SINGLE NOWAIT
 
+!$OMP DO SCHEDULE(STATIC)
         ! sweep direction 1
         Do l=1,Nc/4
             Do i=1,Nstencil1
@@ -85,7 +74,9 @@ contains
                 & )/(0.5d0*mu+cx(l)*coefI(i,1)+cy(l)*coefI(i,4))   
             End do
         End do
+!$OMP END DO NOWAIT
 
+!$OMP DO SCHEDULE(STATIC) 
         ! sweep direction 2
         Do l=Nc/4+1,Nc/2
             Do i=1,Nstencil2
@@ -98,18 +89,20 @@ contains
     
                 fEq=w(l)*(Rho(k)+2.d0*(cx(l)*Ux(k)+cy(l)*Uy(k)))
                 f1(k,l)=(mu*(fEq-0.5d0*f1(k,l)) &
-!                f1(k,l)=(mu*(fEq) &    
-!                f1(k,l)=(mu*(fEq-f1(k,l)) &        
+                ! f1(k,l)=(mu*(fEq) &    
+                ! f1(k,l)=(mu*(fEq-f1(k,l)) &        
                 &        + cx(l)*coefII(i,2)*f1(k+1,l) &
                 &        + cx(l)*coefII(i,3)*f1(k+2,l) &
                 &        + cy(l)*coefII(i,5)*f1(k-Nxtotal,l) &
                 &        + cy(l)*coefII(i,6)*f1(k-2*Nxtotal,l) &
                 & )/(0.5d0*mu+cx(l)*coefII(i,1)+cy(l)*coefII(i,4))
-!                & )/(mu+cx(l)*coefII(i,1)+cy(l)*coefII(i,4))   
-!                & )/(cx(l)*coefII(i,1)+cy(l)*coefII(i,4))          
+                ! & )/(mu+cx(l)*coefII(i,1)+cy(l)*coefII(i,4))   
+                ! & )/(cx(l)*coefII(i,1)+cy(l)*coefII(i,4))          
             End do
         End do
+!$OMP END DO NOWAIT
 
+!$OMP DO SCHEDULE(STATIC) 
         ! sweep direction 3
         Do l=Nc/2+1,Nc*3/4
             Do i=1,Nstencil3
@@ -122,18 +115,20 @@ contains
 
                 fEq=w(l)*(Rho(k)+2.d0*(cx(l)*Ux(k)+cy(l)*Uy(k)))
                 f1(k,l)=(mu*(fEq-0.5d0*f1(k,l)) &
-!                f1(k,l)=(mu*(fEq) &    
-!                f1(k,l)=(mu*(fEq-f1(k,l)) &        
+                ! f1(k,l)=(mu*(fEq) &    
+                ! f1(k,l)=(mu*(fEq-f1(k,l)) &        
                 &        + cx(l)*coefIII(i,2)*f1(k+1,l) &
                 &        + cx(l)*coefIII(i,3)*f1(k+2,l) &
                 &        + cy(l)*coefIII(i,5)*f1(k+Nxtotal,l) &
                 &        + cy(l)*coefIII(i,6)*f1(k+2*Nxtotal,l) &
                 & )/(0.5d0*mu+cx(l)*coefIII(i,1)+cy(l)*coefIII(i,4))
-!                & )/(mu+cx(l)*coefIII(i,1)+cy(l)*coefIII(i,4)) 
-!                & )/(cx(l)*coefIII(i,1)+cy(l)*coefIII(i,4))            
+                ! & )/(mu+cx(l)*coefIII(i,1)+cy(l)*coefIII(i,4)) 
+                ! & )/(cx(l)*coefIII(i,1)+cy(l)*coefIII(i,4))            
             End do
         End do
+!$OMP END DO NOWAIT
 
+!$OMP DO SCHEDULE(STATIC) 
         ! sweep direction 4
         Do l=Nc*3/4+1,Nc
             Do i=1,Nstencil4
@@ -146,27 +141,34 @@ contains
     
                 fEq=w(l)*(Rho(k)+2.d0*(cx(l)*Ux(k)+cy(l)*Uy(k)))
                 f1(k,l)=(mu*(fEq-0.5d0*f1(k,l)) &
-!                f1(k,l)=(mu*(fEq) &    
-!                f1(k,l)=(mu*(fEq-f1(k,l)) &        
+                ! f1(k,l)=(mu*(fEq) &    
+                ! f1(k,l)=(mu*(fEq-f1(k,l)) &        
                 &        + cx(l)*coefIV(i,2)*f1(k-1,l) &
                 &        + cx(l)*coefIV(i,3)*f1(k-2,l) &
                 &        + cy(l)*coefIV(i,5)*f1(k+Nxtotal,l) &
                 &        + cy(l)*coefIV(i,6)*f1(k+2*Nxtotal,l) &
                 & )/(0.5d0*mu+cx(l)*coefIV(i,1)+cy(l)*coefIV(i,4))
-!                & )/(mu+cx(l)*coefIV(i,1)+cy(l)*coefIV(i,4))   
-!                & )/(cx(l)*coefIV(i,1)+cy(l)*coefIV(i,4))  
+                !& )/(mu+cx(l)*coefIV(i,1)+cy(l)*coefIV(i,4))   
+                !& )/(cx(l)*coefIV(i,1)+cy(l)*coefIV(i,4))  
             End do
         End do
+!$OMP END DO NOWAIT
 
         ! Wait until send and recv done
+!$OMP SINGLE
         CALL MPI_WAITALL(4, MPI_REQ_X, MPI_STAT, MPI_ERR)
         CALL MPI_WAITALL(4, MPI_REQ_Y, MPI_STAT, MPI_ERR)
+!$OMP END SINGLE 
 
+!$OMP SINGLE
         ! pack&unpack west&east buffer
         shiftl = 0
         shiftu = 0
         if(xl==xmin) shiftl = ghostLayers
         if(xu==xmax) shiftu = ghostLayers
+!$OMP END SINGLE
+
+!$OMP DO 
         do j = 1, Nytotal
             do i = 1, ghostLayers
                 do l = Nc/4+1, Nc*3/4 ! dir 2 and 3
@@ -189,7 +191,9 @@ contains
                 enddo
             enddo
         enddo
-           
+!$OMP END DO
+
+!$OMP DO         
         ! pack&unpack south&north buffer
         do j = 1, ghostLayers
             do i = 1, Nxtotal
@@ -207,13 +211,10 @@ contains
                 enddo
             enddo
         enddo
-    end subroutine sweep
+!$OMP END DO
 
-    subroutine BCwall
-        implicit none
-        integer :: i, j, k, l
-        double precision :: RhoWall
 
+!$OMP DO SCHEDULE(STATIC)
         Do i=1,nWall
             k=vecWall(i)
             RhoWall=0.d0
@@ -290,7 +291,7 @@ contains
                         RhoWall=RhoWall-cy(l)*(2.d0*f1(k+Nxtotal,l)-f1(k+2*Nxtotal,l))
                     Enddo
                     RhoWall=RhoWall/DiffFlux
-!                    RhoWallY(k)=RhoWall
+                    ! RhoWallY(k)=RhoWall
                     !Calculate default reflected f1 (y-direction)
                     Do l=Nc/4+1,Nc/2
                         f1(k,l)=accom*w(l)*RhoWall &
@@ -322,7 +323,7 @@ contains
                         RhoWall=RhoWall-cy(l)*(2.d0*f1(k+Nxtotal,l)-f1(k+2*Nxtotal,l))
                     Enddo
                     RhoWall=RhoWall/DiffFlux
-!                    RhoWallY(k)=RhoWall
+                    !RhoWallY(k)=RhoWall
                     !Calculate default reflected f1 (y-direction)
                     Do l=1,Nc/4
                         f1(k,l)=accom*w(l)*RhoWall &
@@ -354,7 +355,7 @@ contains
                         RhoWall=RhoWall+cy(l)*(2.d0*f1(k-Nxtotal,l)-f1(k-2*Nxtotal,l))
                     Enddo
                     RhoWall=RhoWall/DiffFlux
-!                    RhoWallY(k)=RhoWall
+                    ! RhoWallY(k)=RhoWall
                     !Calculate default reflected f1 (y-direction)
                     Do l=3*Nc/4+1,Nc
                         f1(k,l)=accom*w(l)*RhoWall &
@@ -386,7 +387,7 @@ contains
                         RhoWall=RhoWall+cy(l)*(2.d0*f1(k-Nxtotal,l)-f1(k-2*Nxtotal,l))
                     Enddo
                     RhoWall=RhoWall/DiffFlux
-!                    RhoWallY(k)=RhoWall
+                    ! RhoWallY(k)=RhoWall
                     !Calculate default reflected f1 (y-direction)
                     Do l=Nc/2+1,3*Nc/4
                         f1(k,l)=accom*w(l)*RhoWall &
@@ -399,12 +400,14 @@ contains
                     Enddo                               
             END SELECT
         End do
-    end subroutine
+!$OMP END DO  
 
-    subroutine BCinletOutlet
-        implicit none
-        integer :: i, j, k, l
+
+        !--------------------------------------------------------
+        !> inlet/outlet
+        !--------------------------------------------------------
         if(xl==xmin) then ! inlet block (west most processor)
+!$OMP DO
             Do j = ylg, yug
                 i = xl
                 k = (j-ylg)*Nxtotal + i-xlg+1
@@ -420,9 +423,11 @@ contains
                     !if(j==13) PRINT*, "l=",l,f1(k,l)
                 Enddo
             End do
+!$OMP END DO
         endif
 
         if(xu==xmax) then ! outlet block (east most processor)
+!$OMP DO
             Do j = ylg, yug
                 i = xu
                 k = (j-ylg)*Nxtotal + i-xlg+1
@@ -431,35 +436,39 @@ contains
                     !f1(k,l)=f1(k-Nxsub+1,l)-w(l)*PressDrop ! NOTE, for NprocX=1
                     f1(k,l)=f1(k+1,l)-w(l)*PressDrop ! NOTE, for NprocX=1
                 Enddo
-            Enddo            
+            Enddo
+!$OMP END DO            
         endif
-    end subroutine BCinletOutlet
-    !
-    subroutine BCsymmetry
-        implicit none
-        integer :: i, j, k, l
+
+        !----------------------------------------------------
+        !> Symmetric BC
+        !----------------------------------------------------
         if(yl==ymin) then ! south
+!$OMP DO
             Do i=xl, xu
                 k = ghostLayers*Nxtotal + i-xlg+1
                 Do l=1,Nc/2
                      f1(k,l)=f1(k,oppositeY(l))
                 End do
             enddo
+!$OMP END DO 
         endif
         if(yu==ymax) then ! north
+!$OMP DO
             Do i=xl, xu
                 k = (Nysub+ghostLayers-1)*Nxtotal + i-xlg+1
                 Do l=Nc/2+1,Nc
                      f1(k,l)=f1(k,oppositeY(l))
                 End do
             End do
+!$OMP END DO
         endif
-    end subroutine BCsymmetry
 
-    subroutine updateMacro
-    implicit none
-    integer :: k, l, j
-       Do k=1,Ntotal
+        !----------------------------------------------------
+        !> Update Macro
+        !----------------------------------------------------
+!$OMP DO
+        Do k=1,Ntotal
             Rho(k)=0.d0
             Ux(k)=0.d0
             Uy(k)=0.d0
@@ -469,8 +478,12 @@ contains
                 Uy(k)=Uy(k)+cy(l)*f1(k,l)
             End do
         End do
-    end subroutine updateMacro
-    
+!$OMP END DO
+
+!$OMP END PARALLEL
+
+    end subroutine iterate
+   
     subroutine chkConverge
         use MPI
         implicit none
