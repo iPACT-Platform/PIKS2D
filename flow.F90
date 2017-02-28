@@ -44,5 +44,15 @@ contains
         allocate( f1_south_snd(Nc/2*Nxtotal*ghostLayers) ) 
         allocate( f1_south_rcv(Nc/2*Nxtotal*ghostLayers) )
 
+        ! Allways initialize allocated arrays
+        f1_west_rcv = 0.d0
+        f1_east_rcv = 0.d0
+        f1_north_rcv = 0.d0
+        f1_south_rcv = 0.d0
+        f1_west_snd = 0.d0
+        f1_east_snd = 0.d0
+        f1_north_snd = 0.d0
+        f1_south_snd = 0.d0
+
     end subroutine setupFlow
 end module flow

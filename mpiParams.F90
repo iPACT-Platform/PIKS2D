@@ -129,20 +129,6 @@ contains
         direction = 1
         CALL MPI_CART_SHIFT(MPI_COMM_VGRID, direction, shift, south, north, MPI_ERR)
         ! west/east and sourth/north has been assigned above
-        
-        !Coordinates of neighbours of this processor in the x and y directions
-        !CALL MPI_CART_COORDS(MPI_COMM_VGRID, east, mpi_dim, mpi_coords, MPI_ERR)
-        !xeast = mpi_coords(1)
-        !PRINT*, "After 2 mpi_cart_coords", proc
-        !CALL MPI_CART_COORDS(MPI_COMM_VGRID, west, mpi_dim, mpi_coords, MPI_ERR)
-        !xwest = mpi_coords(1)
-        !PRINT*, "After 3 mpi_cart_coords", proc
-        !CALL MPI_CART_COORDS(MPI_COMM_VGRID, north, mpi_dim, mpi_coords, MPI_ERR)
-        !ynorth = mpi_coords(2)
-        !PRINT*, "After 4 mpi_cart_coords", proc
-        !CALL MPI_CART_COORDS(MPI_COMM_VGRID, south, mpi_dim, mpi_coords, MPI_ERR)
-        !ysouth = mpi_coords(2)
-        !RINT*, "After 5 mpi_cart_coords", proc
 
         ! Create 
         CALL MPI_COMM_GROUP(MPI_COMM_VGRID, mpi_group_global, MPI_ERR)

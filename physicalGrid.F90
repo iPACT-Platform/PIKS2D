@@ -13,7 +13,7 @@ integer, parameter :: ghostLayers = 2
 
 
 ! NX and NY is the global grid size
-integer, parameter :: Nx = 120, Ny = 120
+integer, parameter :: Nx = 640, Ny = 360
 integer, parameter :: xmin = 1
 integer, parameter :: xmax = Nx
 integer, parameter :: ymin = 1
@@ -23,7 +23,7 @@ double precision, parameter :: ds =  0.5d0/(Ny-1)
 integer, parameter :: column=2 ! layer to extract flow rate
 
 ! raw and extended flag array
-integer, dimension (:,:), allocatable :: array2D
+integer, dimension (:,:), allocatable :: array2D, array2Dg
 integer, dimension (:), allocatable :: image
 
 ! grid point flags
@@ -61,22 +61,35 @@ contains
         Ntotal = Nxtotal * Nytotal
 
         allocate(array2D(Nx, Ny)) ! this is global raw geometry data
-        allocate(image(Ntotal))   ! this is local one
+        !including ghost layer (flag = ghost)
+        allocate(array2Dg(xmin-ghostLayers:xmax+ghostLayers, &
+                          ymin-ghostLayers:ymax+ghostLayers))
+        allocate(image(Ntotal)) ! this is local one
 
-        ! read digital image
-        !Open(200,file='Processed_2D_Berea.dat',status='OLD')
+        !switch for debuging
+        !read digital image
+        !Open(200,file='flag.dat',status='OLD')
         !    do j=1,Ny
         !        read(200, *) (array2D(i,j), i=1,Nx)
         !    enddo
         !Close(200)
+
         array2D=0 !NOTE, for debug
-        !!for debug
+        !for debug
         do j = 1, 10
            array2D(:,j) = 1
         end do
-        do j = 110, 120
+        do j = 350, 360
            array2D(:,j) = 1
         end do
+
+        ! set array2g
+        array2Dg = ghost ! outer bound
+        do j = ymin, ymax
+            do i = xmin, xmax
+                array2Dg(i,j) = array2D(i,j)
+            enddo
+        enddo
 
         ! set array2D
         countVoidP = 0 ! count the void grid points
@@ -93,6 +106,7 @@ contains
 
         ! calu. poresity
         real_porosity=real(countVoidP)/real(Nx*Ny)
+        PRINT*, real_porosity
 
         ! set local image
         image = fluid
@@ -134,6 +148,7 @@ contains
         if(xu == xmax) bxu = xu !if most east block(processor)
         if(yl == ymin) byl = yl !if most south block
         if(yu == ymax) byu = yu !if most north block
+
         ! set wall points type based on sournding point type(f/s)
         nWall=0 ! count the wall points
         !print*, bxl, bxu, byl, byu
@@ -145,14 +160,14 @@ contains
                 If (array2D(i,j)==solid) then
                     NneighborFluid=1 !(1-2-3-4 in D2Q9 corresponding to 2-3-5-7)
                     ! found bug here, array index out of bound of array2D
-                    If (image(localid+1)==fluid)  NneighborFluid=NneighborFluid*2   !Check neighbor on the East(2)
-                    If (image(localid+Nxtotal)==fluid)  NneighborFluid=NneighborFluid*3   !Check neighbor on the North(3)
-                    If (image(localid-1)==fluid)  NneighborFluid=NneighborFluid*5   !Check neighbor on the West(5)
-                    If (image(localid-Nxtotal)==fluid)  NneighborFluid=NneighborFluid*7   !Check neighbor on the South(7)
-                    !If (array2D(i+1, j)==fluid)  NneighborFluid=NneighborFluid*2   !Check neighbor on the East(2)
-                    !If (array2D(i, j+1)==fluid)  NneighborFluid=NneighborFluid*3   !Check neighbor on the North(3)
-                    !If (array2D(i-1, j)==fluid)  NneighborFluid=NneighborFluid*5   !Check neighbor on the West(5)
-                    !If (array2D(i, j-1)==fluid)  NneighborFluid=NneighborFluid*7   !Check neighbor on the South(7)
+                    !If (image(localid+1)==fluid)  NneighborFluid=NneighborFluid*2 
+                    !If (image(localid+Nxtotal)==fluid)  NneighborFluid=NneighborFluid*3
+                    !If (image(localid-1)==fluid)  NneighborFluid=NneighborFluid*5 
+                    !If (image(localid-Nxtotal)==fluid)  NneighborFluid=NneighborFluid*7
+                    If (array2Dg(i+1, j)==fluid)  NneighborFluid=NneighborFluid*2   !Check neighbor on the East(2)
+                    If (array2Dg(i, j+1)==fluid)  NneighborFluid=NneighborFluid*3   !Check neighbor on the North(3)
+                    If (array2Dg(i-1, j)==fluid)  NneighborFluid=NneighborFluid*5   !Check neighbor on the West(5)
+                    If (array2Dg(i, j-1)==fluid)  NneighborFluid=NneighborFluid*7   !Check neighbor on the South(7)
 
                     SELECT Case (NneighborFluid)
                         CASE (2)
@@ -183,6 +198,8 @@ contains
                 Endif
             Enddo
         Enddo
+
+        PRINT*, "nWall = ", nWall
 
         ! Create wall-type vectors
         !vecWall(walli) mark the global id of the walli'th wall in the image 

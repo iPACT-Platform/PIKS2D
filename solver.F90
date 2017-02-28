@@ -8,8 +8,8 @@ use mpiParams
 implicit none
 
 double precision, parameter :: eps=1.d-10
-integer, parameter :: maxStep = 200000
-integer, parameter :: interval = 1000
+integer, parameter :: maxStep = 100000
+integer, parameter :: interval = 100
 integer :: iStep
 double precision :: error
 
@@ -17,7 +17,7 @@ contains
     subroutine iterate
         use MPI
         implicit none
-        integer :: k, l, i, j, shiftl, shiftu
+        integer :: k, l, i, j, shiftll, shiftuu
         INTEGER :: MPI_ERR
         INTEGER :: MPI_REQ_X(4), MPI_REQ_Y(4)
         INTEGER :: MPI_STAT(MPI_STATUS_SIZE,4)
@@ -162,10 +162,10 @@ contains
 
 !$OMP SINGLE
         ! pack&unpack west&east buffer
-        shiftl = 0
-        shiftu = 0
-        if(xl==xmin) shiftl = ghostLayers
-        if(xu==xmax) shiftu = ghostLayers
+        shiftll = 0
+        shiftuu = 0
+        if(xl==xmin) shiftll = ghostLayers
+        if(xu==xmax) shiftuu = ghostLayers
 !$OMP END SINGLE
 
 !$OMP DO 
@@ -173,19 +173,19 @@ contains
             do i = 1, ghostLayers
                 do l = Nc/4+1, Nc*3/4 ! dir 2 and 3
                     f1_west_snd((j-1)*ghostLayers*Nc/2 + (i-1)*Nc/2 + l-Nc/4) &
-                    &  = f1((j-1)*Nxtotal + i+shiftl, l)
+                    &  = f1((j-1)*Nxtotal + i+shiftll, l)
                     f1((j-1)*Nxtotal + i+Nxsub+ghostLayers, l) = &
                     &   f1_east_rcv((j-1)*ghostLayers*Nc/2 + (i-1)*Nc/2 + l-Nc/4)
                 enddo
                 do l = 1, Nc/4      !dir 1
                     f1_east_snd((j-1)*ghostLayers*Nc/2 + (i-1)*Nc/2 + l) &
-                    &  = f1((j-1)*Nxtotal + i+Nxsub+ghostLayers-shiftu, l)
+                    &  = f1((j-1)*Nxtotal + i+Nxsub+ghostLayers-shiftuu, l)
                     f1((j-1)*Nxtotal + i, l) = &
                     &   f1_west_rcv((j-1)*ghostLayers*Nc/2 + (i-1)*Nc/2 + l)                   
                 enddo
                 do l = Nc*3/4+1, Nc ! dir 4
                     f1_east_snd((j-1)*ghostLayers*Nc/2 + (i-1)*Nc/2 + l-Nc/2) &
-                    &  = f1((j-1)*Nxtotal + i+Nxsub+ghostLayers-shiftu, l)
+                    &  = f1((j-1)*Nxtotal + i+Nxsub+ghostLayers-shiftuu, l)
                     f1((j-1)*Nxtotal + i, l) = &
                     &   f1_west_rcv((j-1)*ghostLayers*Nc/2 + (i-1)*Nc/2 + l-Nc/2)                   
                 enddo
@@ -214,6 +214,9 @@ contains
 !$OMP END DO
 
 
+!-------------------------------------------------------------------
+!> Processing wall nodes
+!-------------------------------------------------------------------
 !$OMP DO SCHEDULE(STATIC)
         Do i=1,nWall
             k=vecWall(i)
@@ -419,8 +422,6 @@ contains
                 Do l=3*Nc/4+1,Nc
                     !f1(k,l)=f1(k-1+Nxsub,l)+w(l)*PressDrop ! NOTE, for NprocX=1
                     f1(k,l)=f1(k-1,l)+w(l)*PressDrop ! NOTE, for NprocX=1
-                    !if(j==13 .and. l==13) PRINT*, "AA", f1(k,l)
-                    !if(j==13) PRINT*, "l=",l,f1(k,l)
                 Enddo
             End do
 !$OMP END DO
@@ -472,11 +473,13 @@ contains
             Rho(k)=0.d0
             Ux(k)=0.d0
             Uy(k)=0.d0
-            Do l=1,Nc
-                Rho(k)=Rho(k)+f1(k,l)
-                Ux(k)=Ux(k)+cx(l)*f1(k,l)
-                Uy(k)=Uy(k)+cy(l)*f1(k,l)
-            End do
+            if(image(k) .ne. solid) then
+                Do l=1,Nc
+                    Rho(k)=Rho(k)+f1(k,l)
+                    Ux(k)=Ux(k)+cx(l)*f1(k,l)
+                    Uy(k)=Uy(k)+cy(l)*f1(k,l)
+                End do
+            endif
         End do
 !$OMP END DO
 
@@ -509,12 +512,13 @@ contains
                 k=(j-ylg)*Nxtotal + column+ghostLayers
                 massInner=massInner+Ux(k)*ds
             enddo
-            if(yl == ymin) then !only south most processors
+            if (yl == ymin) then !only south most processors
                 massSouth = 0.5d0*ds*Ux(ghostLayers+column + (yl-ylg)*Nxtotal)
             endif
             if (yu == ymax) then !only north most processors
                 massNorth = 0.5d0*ds*Ux(ghostLayers+column + (ghostLayers+Nysub)*Nxtotal)
             endif
+            ! debug
             massLocal = (massInner + massSouth + massNorth) * 2.d0 / PressDrop
 
             ! reduction
@@ -541,16 +545,16 @@ contains
         write(fname, '(A, I0.3, A)') 'Field_', proc, '.dat'
         open(20,file=fname,STATUS="REPLACE")
         write(20,*) ' TITLE=" Field"'
-        write(20,*) ' VARIABLES=x,y,Rho,Ux,Uy'
+        write(20,*) ' VARIABLES=x,y,flag,Rho,Ux,Uy'
         write(20,'(A,I0.3,A,I,A,I,A)') ' ZONE T=proc', proc, ', I=', Nxsub,', J=', Nysub,', F=POINT'
 
         Do j=yl,yu
             Do i=xl,xu
                 k= (j-ylg)*Nxtotal + i-xlg+1
                 If (image(k)==fluid) then
-                    write(20,'(2I10,3ES15.6)') i, j, Rho(k)+1.d0, Ux(k), Uy(k)
+                    write(20,'(3I10,3ES15.6)') i, j, image(k), Rho(k)+1.d0, Ux(k), Uy(k)
                 else
-                    write(20,'(2I10,3ES15.6)') i, j, 0.d0, 0.d0, 0.d0
+                    write(20,'(3I10,3ES15.6)') i, j, image(k), 0.d0, 0.d0, 0.d0
                 Endif   
             Enddo
         Enddo
