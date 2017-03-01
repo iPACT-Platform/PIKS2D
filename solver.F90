@@ -8,8 +8,8 @@ use mpiParams
 implicit none
 
 double precision, parameter :: eps=1.d-10
-integer, parameter :: maxStep = 100000
-integer, parameter :: interval = 100
+integer, parameter :: maxStep = 1000000
+integer, parameter :: interval = 1000
 integer :: iStep
 double precision :: error
 
@@ -162,10 +162,10 @@ contains
 
 !$OMP SINGLE
         ! pack&unpack west&east buffer
-        shiftll = 0
-        shiftuu = 0
-        if(xl==xmin) shiftll = ghostLayers
-        if(xu==xmax) shiftuu = ghostLayers
+        !shiftll = 0
+        !shiftuu = 0
+        !if(xl==xmin) shiftll = ghostLayers
+        !if(xu==xmax) shiftuu = ghostLayers
 !$OMP END SINGLE
 
 !$OMP DO 
@@ -173,19 +173,19 @@ contains
             do i = 1, ghostLayers
                 do l = Nc/4+1, Nc*3/4 ! dir 2 and 3
                     f1_west_snd((j-1)*ghostLayers*Nc/2 + (i-1)*Nc/2 + l-Nc/4) &
-                    &  = f1((j-1)*Nxtotal + i+shiftll, l)
+                    &  = f1((j-1)*Nxtotal + i+ghostLayers, l)
                     f1((j-1)*Nxtotal + i+Nxsub+ghostLayers, l) = &
                     &   f1_east_rcv((j-1)*ghostLayers*Nc/2 + (i-1)*Nc/2 + l-Nc/4)
                 enddo
                 do l = 1, Nc/4      !dir 1
                     f1_east_snd((j-1)*ghostLayers*Nc/2 + (i-1)*Nc/2 + l) &
-                    &  = f1((j-1)*Nxtotal + i+Nxsub+ghostLayers-shiftuu, l)
+                    &  = f1((j-1)*Nxtotal + i+Nxsub, l)
                     f1((j-1)*Nxtotal + i, l) = &
                     &   f1_west_rcv((j-1)*ghostLayers*Nc/2 + (i-1)*Nc/2 + l)                   
                 enddo
                 do l = Nc*3/4+1, Nc ! dir 4
                     f1_east_snd((j-1)*ghostLayers*Nc/2 + (i-1)*Nc/2 + l-Nc/2) &
-                    &  = f1((j-1)*Nxtotal + i+Nxsub+ghostLayers-shiftuu, l)
+                    &  = f1((j-1)*Nxtotal + i+Nxsub, l)
                     f1((j-1)*Nxtotal + i, l) = &
                     &   f1_west_rcv((j-1)*ghostLayers*Nc/2 + (i-1)*Nc/2 + l-Nc/2)                   
                 enddo
@@ -199,13 +199,13 @@ contains
             do i = 1, Nxtotal
                 do l = 1, Nc/2 ! dir 1, 2
                     f1_north_snd((j-1)*Nxtotal*Nc/2 + (i-1)*Nc/2 + l) &
-                    &  = f1((Nysub+ghostLayers+j-1)*Nxtotal + i, l)
+                    &  = f1((Nysub+j-1)*Nxtotal + i, l)
                     f1((j-1)*Nxtotal + i, l) = &
                     &   f1_south_rcv((j-1)*Nxtotal*Nc/2 + (i-1)*Nc/2 + l)
                 enddo
                 do l = Nc/2+1, Nc ! dir 3, 4
                     f1_south_snd((j-1)*Nxtotal*Nc/2 + (i-1)*Nc/2 + l-Nc/2) &
-                    &  = f1((j-1)*Nxtotal + i, l)
+                    &  = f1((j-1+ghostLayers)*Nxtotal + i, l)
                     f1((Nysub+ghostLayers+j-1)*Nxtotal + i,l) = &
                     &   f1_north_rcv((j-1)*Nxtotal*Nc/2 + (i-1)*Nc/2 + l-Nc/2)
                 enddo
@@ -406,9 +406,9 @@ contains
 !$OMP END DO  
 
 
-        !--------------------------------------------------------
-        !> inlet/outlet
-        !--------------------------------------------------------
+!--------------------------------------------------------
+!> inlet/outlet
+!--------------------------------------------------------
         if(xl==xmin) then ! inlet block (west most processor)
 !$OMP DO
             Do j = ylg, yug
@@ -441,9 +441,9 @@ contains
 !$OMP END DO            
         endif
 
-        !----------------------------------------------------
-        !> Symmetric BC
-        !----------------------------------------------------
+!----------------------------------------------------
+!> Symmetric BC
+!----------------------------------------------------
         if(yl==ymin) then ! south
 !$OMP DO
             Do i=xl, xu

@@ -13,7 +13,8 @@ integer, parameter :: ghostLayers = 2
 
 
 ! NX and NY is the global grid size
-integer, parameter :: Nx = 640, Ny = 360
+integer, parameter :: Nx = 553, Ny = 428 !Brea stone
+!integer, parameter :: Nx = 801, Ny = 401  !Qsgs
 integer, parameter :: xmin = 1
 integer, parameter :: xmax = Nx
 integer, parameter :: ymin = 1
@@ -68,20 +69,21 @@ contains
 
         !switch for debuging
         !read digital image
-        !Open(200,file='flag.dat',status='OLD')
-        !    do j=1,Ny
-        !        read(200, *) (array2D(i,j), i=1,Nx)
-        !    enddo
-        !Close(200)
+        array2D = 0 
+        Open(200,file='Processed_2D_Berea.dat',status='OLD')
+            do j=1,Ny
+                read(200, *) (array2D(i,j), i=11, Nx-10) !NOTE: add extral layer
+            enddo
+        Close(200)
 
-        array2D=0 !NOTE, for debug
-        !for debug
-        do j = 1, 10
-           array2D(:,j) = 1
-        end do
-        do j = 350, 360
-           array2D(:,j) = 1
-        end do
+        !array2D=0 !NOTE, for debug
+        !!for debug
+        !do j = 1, 10
+           !array2D(:,j) = 1
+        !end do
+        !do j = 90, 100
+           !array2D(:,j) = 1
+        !end do
 
         ! set array2g
         array2Dg = ghost ! outer bound
@@ -172,28 +174,28 @@ contains
                     SELECT Case (NneighborFluid)
                         CASE (2)
                             image(localid)=WallXp
-                            nWall=nWall+1
+                            if(j .ge. yl .and. j .le. yu .and. i .ge. xl .and. i .le. xu) nWall=nWall+1
                         CASE (3)
                             image(localid)=WallYp
-                            nWall=nWall+1
+                            if(j .ge. yl .and. j .le. yu .and. i .ge. xl .and. i .le. xu) nWall=nWall+1
                         CASE (5)
                             image(localid)=WallXn
-                            nWall=nWall+1
+                            if(j .ge. yl .and. j .le. yu .and. i .ge. xl .and. i .le. xu) nWall=nWall+1
                         CASE (7)
                             image(localid)=WallYn
-                            nWall=nWall+1
+                            if(j .ge. yl .and. j .le. yu .and. i .ge. xl .and. i .le. xu) nWall=nWall+1
                         CASE (6)
                             image(localid)=WallXpYp
-                            nWall=nWall+1
+                            if(j .ge. yl .and. j .le. yu .and. i .ge. xl .and. i .le. xu) nWall=nWall+1
                         CASE (15)
                             image(localid)=WallXnYp
-                            nWall=nWall+1
+                            if(j .ge. yl .and. j .le. yu .and. i .ge. xl .and. i .le. xu) nWall=nWall+1
                         CASE (35)
                             image(localid)=WallXnYn
-                            nWall=nWall+1
+                            if(j .ge. yl .and. j .le. yu .and. i .ge. xl .and. i .le. xu) nWall=nWall+1
                         CASE (14)
                             image(localid)=WallXpYn
-                            nWall=nWall+1
+                            if(j .ge. yl .and. j .le. yu .and. i .ge. xl .and. i .le. xu) nWall=nWall+1
                     END SELECT
                 Endif
             Enddo
@@ -205,8 +207,8 @@ contains
         !vecWall(walli) mark the global id of the walli'th wall in the image 
         ALLOCATE(vecWall(nWall))
         nWall=0
-        Do j=ylg, yug
-            Do i=xlg, xug
+        Do j=yl, yu
+            Do i=xl, xu
                 localid = (j-ylg)*Nxtotal + i-xlg+1
                 SELECT Case (image(localid))
                     CASE (WallXp)
@@ -237,16 +239,17 @@ contains
             Enddo
         Enddo
 
+        !BUG FOUND
         !Direction 1
         !bound
         bxl = xl
-        bxu = xug
+        bxu = xu
         byl = yl
-        byu = yug
+        byu = yu
         if(xl == xmin) bxl = xl + 1 !if most west block(processor)
         if(yl == ymin) byl = yl + 1 !if most south block
-        if(xu == xmax) bxu = xu     !if most east block(processor)
-        if(yu == ymax) byu = yu     !if most north block   
+        !if(xu == xmax) bxu = xu     !if most east block(processor)
+        !if(yu == ymax) byu = yu     !if most north block   
         !count fluid points when sweeping from 1st direction
         Nstencil1=0
         Do j=byl,byu
@@ -272,14 +275,14 @@ contains
 
         !Direction 2
         !bound
-        bxl = xlg
+        bxl = xl
         bxu = xu
         byl = yl
-        byu = yug
+        byu = yu
         if(xu == xmax) bxu = xu - 1 !if most east block
         if(yl == ymin) byl = yl + 1 !if most south block
-        if(xl == xmin) bxl = xl     !if most west block
-        if(yu == ymax) byu = yu     !if most north block
+        !if(xl == xmin) bxl = xl     !if most west block
+        !if(yu == ymax) byu = yu     !if most north block
         !count fluid points when sweeping from 2nd direction
         Nstencil2=0
         Do j=byl,byu
@@ -305,14 +308,14 @@ contains
 
         !Direction 3
         !bound
-        bxl = xlg
+        bxl = xl
         bxu = xu
-        byl = ylg
+        byl = yl
         byu = yu
         if(xu == xmax) bxu = xu - 1 !if most east block
         if(yu == ymax) byu = yu - 1 !if most north block
-        if(xl == xmin) bxl = xl     !if most west block
-        if(yl == ymin) byl = yl     !if most south block
+        !if(xl == xmin) bxl = xl     !if most west block
+        !if(yl == ymin) byl = yl     !if most south block
         !count fluid points when sweeping from 3rd direction
         Nstencil3=0
         Do j=byu,byl,-1
@@ -339,13 +342,13 @@ contains
         !Direction 4
         !bound
         bxl = xl
-        bxu = xug
-        byl = ylg
+        bxu = xu
+        byl = yl
         byu = yu
         if(xl == xmin) bxl = xl + 1 !if most west block
         if(yu == ymax) byu = yu - 1 !if most north block
-        if(xu == xmax) bxu = xu     !if most east block
-        if(yl == ymin) byl = yl     !if most south block
+        !if(xu == xmax) bxu = xu     !if most east block
+        !if(yl == ymin) byl = yl     !if most south block
         !count fluid points when sweeping from 4th direction
         Nstencil4=0
         Do j=byu,byl,-1
