@@ -6,7 +6,7 @@ use velocityGrid, only: PI
 implicit none
 save
 
-double precision, parameter :: Kn = 9d-5
+double precision, parameter :: Kn = 1d-1
 double precision, parameter :: mu = dsqrt(PI)/2.0d0/Kn
 double precision, parameter :: PressDrop=1.0d-3
 double precision, parameter :: accom = 1.d0

@@ -8,8 +8,8 @@ use mpiParams
 implicit none
 
 double precision, parameter :: eps=1.d-10
-integer, parameter :: maxStep = 1000000
-integer, parameter :: interval = 1000
+integer, parameter :: maxStep = 5000000
+integer, parameter :: interval = 100
 integer :: iStep
 double precision :: error
 
@@ -552,9 +552,9 @@ contains
             Do i=xl,xu
                 k= (j-ylg)*Nxtotal + i-xlg+1
                 If (image(k)==fluid) then
-                    write(20,'(3I10,3ES15.6)') i, j, image(k), Rho(k)+1.d0, Ux(k), Uy(k)
+                    write(20,'(3I10,3ES15.6)') i, j, 0, Rho(k)+1.d0, Ux(k), Uy(k)
                 else
-                    write(20,'(3I10,3ES15.6)') i, j, image(k), 0.d0, 0.d0, 0.d0
+                    write(20,'(3I10,3ES15.6)') i, j, 1, 0.d0, 0.d0, 0.d0
                 Endif   
             Enddo
         Enddo

@@ -53,8 +53,8 @@ logical :: fileexist
 !=======================================================================
 !integer, parameter :: Ny = 401 !number of point half height channel, including two end
 !integer, parameter :: Nx = (Ny-1)*2+1  !length of the channel
-integer, parameter :: Ny=120
-integer, parameter :: Nx=120
+integer, parameter :: Ny=360
+integer, parameter :: Nx=640
 !integer, parameter :: Ny=856
 !integer, parameter :: Nx=1066
 integer, Dimension (Nx,Ny) ::array2D
@@ -83,17 +83,17 @@ double precision :: RhoWall
 
 integer, parameter :: column=2 ! layer to extract flow rate
 double precision,parameter :: PressDrop=1.0d-3 !Pressure drop
-integer, parameter :: iteration_max=100,iteration_min=2000,interval=100
+integer, parameter :: iteration_max=100,iteration_min=200000,interval=1000
 !double precision :: ds = 1.d0/(Nx-1) !uniform grid spacing in physical space
 double precision :: ds = 0.5d0/(Ny-1) !uniform grid spacing in physical space
 !double precision :: dt  !uniform grid spacing in  time space
 double precision :: Kn,mass,mass2,permeability
 double precision :: DiffFlux, error, fEq, mu
 
-integer, parameter :: nKn= 1!28 number of Kn case
+integer, parameter :: nKn= 4!28 number of Kn case
 !integer, parameter :: nKn=6! number of Kn case
 integer :: iKn
-double precision, parameter, DIMENSION(1:nKn)::seriesKn=(0.1d0)
+double precision, parameter, DIMENSION(1:nKn):: seriesKn=(/1.0d0, 1.0d1, 1.0d-2, 1.0d-3/)
 !=======================================================================
 !       Molecular velocity space configurations
 !=======================================================================
@@ -205,17 +205,18 @@ End if
 !------------------------------------------------------------------------
 !Open(200,file='Processed_2D_Tomography.dat',status='OLD')
 !Open(200,file='Processed_2D_Berea.dat',status='OLD')
-!    Do j=1,Ny
-!        read(200, *) (array2D(i,j), i=1,Nx)
-!    Enddo
-!Close(200)
-array2D = 0
-do j = 1, 10
-    array2D(:,j) = 1
-end do
-do j = 110, 120
-    array2D(:,j) = 1
-end do
+Open(200,file='cylinder.dat',status='OLD')
+    Do j=1,Ny
+        read(200, *) (array2D(i,j), i=1,Nx)
+    Enddo
+Close(200)
+!array2D = 0
+!do j = 1, 10
+!    array2D(:,j) = 1
+!end do
+!do j = 110, 120
+!    array2D(:,j) = 1
+!end do
 
 Do j=1, Ny
     Do i=1,Nx

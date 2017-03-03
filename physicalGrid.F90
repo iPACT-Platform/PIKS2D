@@ -13,7 +13,9 @@ integer, parameter :: ghostLayers = 2
 
 
 ! NX and NY is the global grid size
-integer, parameter :: Nx = 553, Ny = 428 !Brea stone
+!integer, parameter :: Nx = (533-1)*2+1, Ny = (428-1)*2+1 !Brea stone
+integer, parameter :: Nx = 640, Ny = 360 !Brea stone
+!integer, parameter :: Nx = 533, Ny = 428 !Brea stone
 !integer, parameter :: Nx = 801, Ny = 401  !Qsgs
 integer, parameter :: xmin = 1
 integer, parameter :: xmax = Nx
@@ -70,20 +72,35 @@ contains
         !switch for debuging
         !read digital image
         array2D = 0 
-        Open(200,file='Processed_2D_Berea.dat',status='OLD')
+        !Open(200,file='cylinder_simple.dat',status='OLD')
+        Open(200,file='cylinder.dat',status='OLD')
+        !Open(200,file='Processed_2D_Berea.dat',status='OLD')
+        !Open(200,file='Processed_2x_2D_Berea.dat',status='OLD')
+        !Open(200,file='cylinder.dat',status='OLD')
             do j=1,Ny
-                read(200, *) (array2D(i,j), i=11, Nx-10) !NOTE: add extral layer
+                !read(200, *) (array2D(i,j), i=11, Nx-10) !NOTE: add extral layer
+                read(200, *) (array2D(i,j), i=1, Nx) !NOTE: add extral layer
             enddo
         Close(200)
 
         !array2D=0 !NOTE, for debug
-        !!for debug
-        !do j = 1, 10
-           !array2D(:,j) = 1
+        !for debug
+        !do i = 1, 30
+        !   array2D(i,:) = 0
         !end do
-        !do j = 90, 100
-           !array2D(:,j) = 1
+        !do i = Nx-30, Nx
+        !   array2D(i,:) = 0
         !end do
+
+        !!mast problemic points
+        !do j = 76, 80
+        !    do i = 263, 268
+        !        array2D(i,j) = 0
+        !    enddo
+        !enddo
+        !!mask
+        !array2D(266, 105) = 1
+        !array2D(267, 105) = 1
 
         ! set array2g
         array2Dg = ghost ! outer bound
