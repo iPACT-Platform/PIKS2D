@@ -15,6 +15,8 @@ integer, parameter :: ghostLayers = 2
 ! NX and NY is the global grid size
 !integer, parameter :: Nx = (533-1)*2+1, Ny = (428-1)*2+1 !Brea stone
 integer, parameter :: Nx = 640, Ny = 360 !Brea stone
+!integer, parameter :: Nx = 269, Ny = 269 !Lei Wu
+!integer, parameter :: Nx = 100, Ny = 42 !Brea stone
 !integer, parameter :: Nx = 533, Ny = 428 !Brea stone
 !integer, parameter :: Nx = 801, Ny = 401  !Qsgs
 integer, parameter :: xmin = 1
@@ -73,7 +75,9 @@ contains
         !read digital image
         array2D = 0 
         !Open(200,file='cylinder_simple.dat',status='OLD')
-        Open(200,file='cylinder.dat',status='OLD')
+        !Open(200,file='cylinder.dat',status='OLD')
+        Open(200,file='square.dat',status='OLD')
+        !Open(200,file='leiwu.dat',status='OLD')
         !Open(200,file='Processed_2D_Berea.dat',status='OLD')
         !Open(200,file='Processed_2x_2D_Berea.dat',status='OLD')
         !Open(200,file='cylinder.dat',status='OLD')
@@ -84,12 +88,12 @@ contains
         Close(200)
 
         !array2D=0 !NOTE, for debug
-        !for debug
-        !do i = 1, 30
-        !   array2D(i,:) = 0
+        !!for debug
+        !do j = 1, 2
+        !   array2D(:,j) = 1
         !end do
-        !do i = Nx-30, Nx
-        !   array2D(i,:) = 0
+        !do j = Ny-1, Ny
+        !   array2D(:,j) = 1
         !end do
 
         !!mast problemic points
@@ -169,7 +173,7 @@ contains
         if(yu == ymax) byu = yu !if most north block
 
         ! set wall points type based on sournding point type(f/s)
-        nWall=0 ! count the wall points
+        nWall=0 ! count the wall points, only in the l, u range are counted!
         !print*, bxl, bxu, byl, byu
         Do j=byl,byu
             Do i=bxl,bxu

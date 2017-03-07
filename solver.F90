@@ -8,8 +8,8 @@ use mpiParams
 implicit none
 
 double precision, parameter :: eps=1.d-10
-integer, parameter :: maxStep = 5000000
-integer, parameter :: interval = 100
+integer, parameter :: maxStep = 200000
+integer, parameter :: interval = 1000
 integer :: iStep
 double precision :: error
 
@@ -160,13 +160,13 @@ contains
         CALL MPI_WAITALL(4, MPI_REQ_Y, MPI_STAT, MPI_ERR)
 !$OMP END SINGLE 
 
-!$OMP SINGLE
+!!$OMP SINGLE
         ! pack&unpack west&east buffer
         !shiftll = 0
         !shiftuu = 0
         !if(xl==xmin) shiftll = ghostLayers
         !if(xu==xmax) shiftuu = ghostLayers
-!$OMP END SINGLE
+!!$OMP END SINGLE
 
 !$OMP DO 
         do j = 1, Nytotal

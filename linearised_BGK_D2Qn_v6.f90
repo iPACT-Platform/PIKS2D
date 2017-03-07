@@ -53,10 +53,13 @@ logical :: fileexist
 !=======================================================================
 !integer, parameter :: Ny = 401 !number of point half height channel, including two end
 !integer, parameter :: Nx = (Ny-1)*2+1  !length of the channel
-integer, parameter :: Ny=360
-integer, parameter :: Nx=640
+!integer, parameter :: Ny=42
+!integer, parameter :: Nx=100
 !integer, parameter :: Ny=856
 !integer, parameter :: Nx=1066
+integer, parameter :: Ny=(428-1)*2+1
+integer, parameter :: Nx=(533-1)*2+1
+
 integer, Dimension (Nx,Ny) ::array2D
 integer, parameter :: ghostLayer=2 !number of ghost layer at each boundary
 !integer, parameter :: obstR=(Nx-1)/4     !square cylinder with porosity=0.75
@@ -90,10 +93,10 @@ double precision :: ds = 0.5d0/(Ny-1) !uniform grid spacing in physical space
 double precision :: Kn,mass,mass2,permeability
 double precision :: DiffFlux, error, fEq, mu
 
-integer, parameter :: nKn= 4!28 number of Kn case
+integer, parameter :: nKn= 1!28 number of Kn case
 !integer, parameter :: nKn=6! number of Kn case
 integer :: iKn
-double precision, parameter, DIMENSION(1:nKn):: seriesKn=(/1.0d0, 1.0d1, 1.0d-2, 1.0d-3/)
+double precision, parameter, DIMENSION(1:nKn):: seriesKn=(/1.0d-1/)
 !=======================================================================
 !       Molecular velocity space configurations
 !=======================================================================
@@ -131,10 +134,14 @@ ALLOCATE(f1(Ntotal,Nc))
 ALLOCATE(Rho(Ntotal), Ux(Ntotal), Uy(Ntotal))
 
 !Gaussian Hermite 4th order (Half-range)
-xi(1) = 0.3001939310608394d0         !fundamental abscissae
-xi(2) = 0.1252421045333717d1
-weight1D(1) = 0.6405291796843786d0/dsqrt(PI)    !fundamental weighting
-weight1D(2) = 0.2456977457683793d0/dsqrt(PI)
+!xi(1) = 0.3001939310608394d0         !fundamental abscissae
+!xi(2) = 0.1252421045333717d1
+!weight1D(1) = 0.6405291796843786d0/dsqrt(PI)    !fundamental weighting
+!weight1D(2) = 0.2456977457683793d0/dsqrt(PI)
+xi(1) = dsqrt(3.d0-dsqrt(6.d0)) /dsqrt(2.d0)         !fundamental abscissae
+xi(2) = dsqrt(3.d0+dsqrt(6.d0)) /dsqrt(2.d0)
+weight1D(1) = (3.d0+dsqrt(6.d0))/12.d0    !fundamental weighting
+weight1D(2) = (3.d0-dsqrt(6.d0))/12.d0
 
 !------------------------------------------------------------------------
 !           Two-dimensional Hermite quadrature: tensor production formulae
@@ -205,16 +212,17 @@ End if
 !------------------------------------------------------------------------
 !Open(200,file='Processed_2D_Tomography.dat',status='OLD')
 !Open(200,file='Processed_2D_Berea.dat',status='OLD')
-Open(200,file='cylinder.dat',status='OLD')
+Open(200,file='Processed_2x_2D_Berea.dat',status='OLD')
+!Open(200,file='cylinder.dat',status='OLD')
     Do j=1,Ny
         read(200, *) (array2D(i,j), i=1,Nx)
     Enddo
 Close(200)
 !array2D = 0
-!do j = 1, 10
+!do j = 1, 2
 !    array2D(:,j) = 1
 !end do
-!do j = 110, 120
+!do j = Ny-1, Ny
 !    array2D(:,j) = 1
 !end do
 

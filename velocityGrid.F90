@@ -2,7 +2,7 @@
 !> @brief Physical space configurations
 !=======================================================================
 module velocityGrid
-integer, parameter :: Nc_fundamental=3 !Number of fundamental molecular velocity
+integer, parameter :: Nc_fundamental=2 !Number of fundamental molecular velocity
 integer, parameter :: Nc=(2*Nc_fundamental)**2 !Number of moleculer velocity in 2D-Gaussian Hermite
 integer, parameter :: Vmax=5
 integer, parameter :: power_law=3
@@ -24,12 +24,17 @@ contains
         !weight1D(2) = 0.2456977457683793d0/dsqrt(PI)
 
     
-        xi(1) = 1.90554149798192d-1         !fundamental abscissae
-        xi(2) = 8.48251867544577d-1
-        xi(3) = 1.79977657841573d0 
-        weight1D(1) = 4.46029770466658d-1/dsqrt(PI)    !fundamental weighting
-        weight1D(2) = 3.96468266998335d-1/dsqrt(PI)
-        weight1D(3) = 4.37288879877644d-2/dsqrt(PI)
+        !xi(1) = 1.90554149798192d-1         !fundamental abscissae
+        !xi(2) = 8.48251867544577d-1
+        !xi(3) = 1.79977657841573d0 
+        !weight1D(1) = 4.46029770466658d-1/dsqrt(PI)    !fundamental weighting
+        !weight1D(2) = 3.96468266998335d-1/dsqrt(PI)
+        !weight1D(3) = 4.37288879877644d-2/dsqrt(PI)
+
+        xi(1) = dsqrt(3.d0-dsqrt(6.d0)) /dsqrt(2.d0)         !fundamental abscissae
+        xi(2) = dsqrt(3.d0+dsqrt(6.d0)) /dsqrt(2.d0)
+        weight1D(1) = (3.d0+dsqrt(6.d0))/12.d0    !fundamental weighting
+        weight1D(2) = (3.d0-dsqrt(6.d0))/12.d0
 
         Do i=1,4    ! index for molecular velocity group I,II,III,IV
              Do m=1,Nc_fundamental
