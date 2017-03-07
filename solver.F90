@@ -8,7 +8,7 @@ use mpiParams
 implicit none
 
 double precision, parameter :: eps=1.d-10
-integer, parameter :: maxStep = 200000
+integer, parameter :: maxStep = 500
 integer, parameter :: interval = 1000
 integer :: iStep
 double precision :: error
@@ -482,6 +482,9 @@ contains
             endif
         End do
 !$OMP END DO
+        !debug
+        if(proc == master) PRINT*, "U = ", Uy(36)
+        !if(proc == master) PRINT*, image(36)
 
 !$OMP END PARALLEL
 
