@@ -8,7 +8,7 @@ use mpiParams
 implicit none
 
 double precision, parameter :: eps=1.d-10
-integer, parameter :: maxStep = 500
+integer, parameter :: maxStep = 4
 integer, parameter :: interval = 1000
 integer :: iStep
 double precision :: error
@@ -168,6 +168,9 @@ contains
         !if(xu==xmax) shiftuu = ghostLayers
 !!$OMP END SINGLE
 
+!-------------------------------------------------------------------
+!> Pack/unpack boundary data
+!-------------------------------------------------------------------
 !$OMP DO 
         do j = 1, Nytotal
             do i = 1, ghostLayers
@@ -416,12 +419,12 @@ contains
                 k = (j-ylg)*Nxtotal + i-xlg+1
                 !inlet
                 Do l=1,Nc/4
-                    !f1(k,l)=f1(k-1+Nxsub,l)+w(l)*PressDrop !lhzhu, need other block's info, so vgrid is perodical in x dir
-                    f1(k,l)=f1(k-1,l)+w(l)*PressDrop !lhzhu, need other block's info, so vgrid is perodical in x dir
+                    f1(k,l)=f1(k-1+Nxsub,l)+w(l)*PressDrop !lhzhu, need other block's info, so vgrid is perodical in x dir
+                    !f1(k,l)=f1(k-1,l)+w(l)*PressDrop !lhzhu, need other block's info, so vgrid is perodical in x dir
                 Enddo   
                 Do l=3*Nc/4+1,Nc
-                    !f1(k,l)=f1(k-1+Nxsub,l)+w(l)*PressDrop ! NOTE, for NprocX=1
-                    f1(k,l)=f1(k-1,l)+w(l)*PressDrop ! NOTE, for NprocX=1
+                    f1(k,l)=f1(k-1+Nxsub,l)+w(l)*PressDrop ! NOTE, for NprocX=1
+                    !f1(k,l)=f1(k-1,l)+w(l)*PressDrop ! NOTE, for NprocX=1
                 Enddo
             End do
 !$OMP END DO
@@ -434,8 +437,8 @@ contains
                 k = (j-ylg)*Nxtotal + i-xlg+1
                 !outlet
                 Do l=Nc/4+1,3*Nc/4          
-                    !f1(k,l)=f1(k-Nxsub+1,l)-w(l)*PressDrop ! NOTE, for NprocX=1
-                    f1(k,l)=f1(k+1,l)-w(l)*PressDrop ! NOTE, for NprocX=1
+                    f1(k,l)=f1(k-Nxsub+1,l)-w(l)*PressDrop ! NOTE, for NprocX=1
+                    !f1(k,l)=f1(k+1,l)-w(l)*PressDrop ! NOTE, for NprocX=1
                 Enddo
             Enddo
 !$OMP END DO            
@@ -483,7 +486,7 @@ contains
         End do
 !$OMP END DO
         !debug
-        if(proc == master) PRINT*, "U = ", Uy(36)
+        !if(proc == master) PRINT*, "U = ", Uy(36)
         !if(proc == master) PRINT*, image(36)
 
 !$OMP END PARALLEL
