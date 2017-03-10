@@ -13,8 +13,8 @@ integer, parameter :: ghostLayers = 2
 
 
 ! NX and NY is the global grid size
-!integer, parameter :: Nx = (533-1)*2+1, Ny = (428-1)*2+1 !Brea stone
-integer, parameter :: Nx = 260, Ny = 360 !Brea stone
+integer, parameter :: Nx = (533-1)*2+1, Ny = (428-1)*2+1 !Brea stone
+!integer, parameter :: Nx = 260, Ny = 360 !Brea stone
 !integer, parameter :: Nx = 269, Ny = 269 !Lei Wu
 !integer, parameter :: Nx = 100, Ny = 42 !Brea stone
 !integer, parameter :: Nx = 16, Ny = 10 !Brea stone
@@ -77,11 +77,11 @@ contains
         array2D = 0 
         !Open(200,file='cylinder_simple.dat',status='OLD')
         !Open(200,file='cylinder.dat',status='OLD')
-        Open(200,file='badsquare.dat',status='OLD')
+        !Open(200,file='badsquareX.dat',status='OLD')
         !Open(200,file='leiwu.dat',status='OLD')
         !Open(200,file='small.dat',status='OLD')
         !Open(200,file='Processed_2D_Berea.dat',status='OLD')
-        !Open(200,file='Processed_2x_2D_Berea.dat',status='OLD')
+        Open(200,file='Processed_2x_2D_Berea.dat',status='OLD')
         !Open(200,file='cylinder.dat',status='OLD')
             do j=1,Ny
         !        !read(200, *) (array2D(i,j), i=11, Nx-10) !NOTE: add extral layer
@@ -90,10 +90,10 @@ contains
         close(200)
         !array2D(:,179) = 0
         !let inlet and outlet to be fluid
-        array2D(1,:) = 0
-        array2D(2,:) = 0
-        array2D(Nx,:) = 0
-        array2D(Nx-1,:) = 0
+        !array2D(1,:) = 0
+        !array2D(2,:) = 0
+        !array2D(Nx,:) = 0
+        !array2D(Nx-1,:) = 0
 
         !array2D=0 !NOTE, for debug
         !for debug

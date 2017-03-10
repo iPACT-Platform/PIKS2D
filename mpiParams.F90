@@ -16,7 +16,7 @@ INTEGER, PARAMETER :: TAG1 = 1, TAG2 = 2, TAG3 = 3, TAG4 = 4
 
 ! Communication parameters
 INTEGER :: nprocs, proc, vproc
-INTEGER, parameter :: mpi_xdim = 1
+INTEGER, parameter :: mpi_xdim = 2
 INTEGER, parameter :: mpi_ydim = 2
 INTEGER :: east, west, north, south, MPI_COMM_VGRID
 INTEGER, PARAMETER :: master  = 0

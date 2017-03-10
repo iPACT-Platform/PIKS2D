@@ -8,7 +8,7 @@ use mpiParams
 implicit none
 
 double precision, parameter :: eps=1.d-10
-integer, parameter :: maxStep = 4
+integer, parameter :: maxStep = 20000000
 integer, parameter :: interval = 1000
 integer :: iStep
 double precision :: error
@@ -227,7 +227,8 @@ contains
             SELECT CASE (image(k))
                 CASE (WallXp)
                     Do l=Nc/4+1,3*Nc/4
-                        f1(k,l)=2.d0*f1(k+1,l)-f1(k+2,l)
+                        !f1(k,l)=2.d0*f1(k+1,l)-f1(k+2,l)
+                        f1(k,l)=1.d0*f1(k+1,l)
                         RhoWall=RhoWall-cx(l)*f1(k,l)
                     Enddo
                     RhoWall=RhoWall/DiffFlux
@@ -241,7 +242,8 @@ contains
                     Enddo
                 CASE (WallXn)
                     Do l=1,Nc/4
-                        f1(k,l)=2.d0*f1(k-1,l)-f1(k-2,l)
+                        !f1(k,l)=2.d0*f1(k-1,l)-f1(k-2,l)
+                        f1(k,l)=1.d0*f1(k-1,l)
                         RhoWall=RhoWall+cx(l)*f1(k,l)
                     Enddo
                     Do l=3*Nc/4+1,Nc
@@ -255,7 +257,8 @@ contains
                     Enddo
                 CASE (WallYp)
                     Do l=Nc/2+1,Nc
-                        f1(k,l)=2.d0*f1(k+Nxtotal,l)-f1(k+2*Nxtotal,l)
+                        !f1(k,l)=2.d0*f1(k+Nxtotal,l)-f1(k+2*Nxtotal,l)
+                        f1(k,l)=1.d0*f1(k+Nxtotal,l)
                         RhoWall=RhoWall-cy(l)*f1(k,l)
                     Enddo
                     RhoWall=RhoWall/DiffFlux
@@ -265,7 +268,8 @@ contains
                     Enddo
                 CASE (WallYn)
                     Do l=1,Nc/2
-                        f1(k,l)=2.d0*f1(k-Nxtotal,l)-f1(k-2*Nxtotal,l)
+                        !f1(k,l)=2.d0*f1(k-Nxtotal,l)-f1(k-2*Nxtotal,l)
+                        f1(k,l)=1.d0*f1(k-Nxtotal,l)
                         RhoWall=RhoWall+cy(l)*f1(k,l)
                     Enddo
                     RhoWall=RhoWall/DiffFlux
@@ -279,7 +283,8 @@ contains
                 CASE (WallXpYp)
                     !Calculate default reflected f1 (x-direction)
                     Do l=Nc/4+1,3*Nc/4
-                        f1(k,l)=2.d0*f1(k+1,l)-f1(k+2,l)
+                        !f1(k,l)=2.d0*f1(k+1,l)-f1(k+2,l)
+                        f1(k,l)=1.d0*f1(k+1,l)
                         RhoWall=RhoWall-cx(l)*f1(k,l)
                     Enddo
                     RhoWall=RhoWall/DiffFlux
@@ -311,7 +316,8 @@ contains
                 CASE (WallXnYp)
                     !Calculate default reflected f1 (x-direction)
                     Do l=1,Nc/4
-                        f1(k,l)=2.d0*f1(k-1,l)-f1(k-2,l)
+                        !f1(k,l)=2.d0*f1(k-1,l)-f1(k-2,l)
+                        f1(k,l)=1.d0*f1(k-1,l)
                         RhoWall=RhoWall+cx(l)*f1(k,l)
                     Enddo
                     Do l=3*Nc/4+1,Nc
@@ -343,7 +349,8 @@ contains
                 CASE (WallXnYn)
                     !Calculate default reflected f1 (x-direction)
                     Do l=1,Nc/4
-                        f1(k,l)=2.d0*f1(k-1,l)-f1(k-2,l)
+                        !f1(k,l)=2.d0*f1(k-1,l)-f1(k-2,l)
+                        f1(k,l)=1.d0*f1(k-1,l)
                         RhoWall=RhoWall+cx(l)*f1(k,l)
                     Enddo
                     Do l=3*Nc/4+1,Nc
@@ -375,7 +382,8 @@ contains
                 CASE (WallXpYn)
                     !Calculate default reflected f1 (x-direction)
                     Do l=Nc/4+1,3*Nc/4
-                        f1(k,l)=2.d0*f1(k+1,l)-f1(k+2,l)
+                        !f1(k,l)=2.d0*f1(k+1,l)-f1(k+2,l)
+                        f1(k,l)=1.d0*f1(k+1,l)
                         RhoWall=RhoWall-cx(l)*f1(k,l)
                     Enddo
                     RhoWall=RhoWall/DiffFlux
@@ -547,10 +555,13 @@ contains
 
     subroutine saveFlowField
         integer :: j, i, k
-        character(13) fname
+        character(21) fname
         write(fname, '(A, I0.3, A)') 'Field_', proc, '.dat'
-        open(20,file=fname,STATUS="REPLACE")
+        !write(fname, '(A, I0.3, A, I0.5, A)') 'Field_', proc, '_T_', iStep, '.dat'
+
+        open(20,file=fname, STATUS='REPLACE')
         write(20,*) ' TITLE=" Field"'
+        write(20,*) 'StrandID='//itoa(iStep)//',SolutionTime='//itoa(iStep)
         write(20,*) ' VARIABLES=x,y,flag,Rho,Ux,Uy'
         write(20,'(A,I0.3,A,I,A,I,A)') ' ZONE T=proc', proc, ', I=', Nxsub,', J=', Nysub,', F=POINT'
 
@@ -576,4 +587,12 @@ contains
         deallocate (f1_west_snd, f1_west_rcv, f1_east_snd, f1_east_rcv)
         deallocate (f1_north_snd, f1_north_rcv, f1_south_snd, f1_south_rcv)
     end subroutine memFree
+
+    function itoa(i) result(res)
+        character(:),allocatable :: res
+        integer,intent(in) :: i
+        character(range(i)+2) :: tmp
+        write(tmp,'(i0)') i
+        res = trim(tmp)
+    end function
 end module solver
