@@ -27,6 +27,9 @@ contains
         xsize = Nytotal*Nc/2*ghostLayers
         ysize = Nxtotal*Nc/2*ghostLayers
 
+        MPI_REQ_X = MPI_REQUEST_NULL
+        MPI_REQ_Y = MPI_REQUEST_NULL
+
 !$OMP PARALLEL &
 !$OMP DEFAULT(SHARED) &
 !$OMP PRIVATE(l, i, k, fEq, RhoWall)
@@ -427,12 +430,12 @@ contains
                 k = (j-ylg)*Nxtotal + i-xlg+1
                 !inlet
                 Do l=1,Nc/4
-                    f1(k,l)=f1(k-1+Nxsub,l)+w(l)*PressDrop !lhzhu, need other block's info, so vgrid is perodical in x dir
-                    !f1(k,l)=f1(k-1,l)+w(l)*PressDrop !lhzhu, need other block's info, so vgrid is perodical in x dir
+                    !f1(k,l)=f1(k-1+Nxsub,l)+w(l)*PressDrop !lhzhu, need other block's info, so vgrid is perodical in x dir
+                    f1(k,l)=f1(k-1,l)+w(l)*PressDrop !lhzhu, need other block's info, so vgrid is perodical in x dir
                 Enddo   
                 Do l=3*Nc/4+1,Nc
-                    f1(k,l)=f1(k-1+Nxsub,l)+w(l)*PressDrop ! NOTE, for NprocX=1
-                    !f1(k,l)=f1(k-1,l)+w(l)*PressDrop ! NOTE, for NprocX=1
+                    !f1(k,l)=f1(k-1+Nxsub,l)+w(l)*PressDrop ! NOTE, for NprocX=1
+                    f1(k,l)=f1(k-1,l)+w(l)*PressDrop ! NOTE, for NprocX=1
                 Enddo
             End do
 !$OMP END DO

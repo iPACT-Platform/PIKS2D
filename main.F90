@@ -1,13 +1,36 @@
+module Fortran_Sleep
+   use, intrinsic :: iso_c_binding, only: c_int
+
+   implicit none
+
+   interface
+
+      !  should be unsigned int ... not available in Fortran
+      !  OK until highest bit gets set.
+      function FortSleep (seconds)  bind ( C, name="sleep" )
+          import
+          integer (c_int) :: FortSleep
+          integer (c_int), intent (in), VALUE :: seconds
+      end function FortSleep
+
+   end interface
+
+end module Fortran_Sleep
+
 PROGRAM main
 !Common Variables
 USE flow
 USE MPIParams
 USE MPI ! this is system mpi
 USE solver
+use, intrinsic :: iso_c_binding, only: c_int
+use Fortran_Sleep
+
 IMPLICIT NONE
 
 ! Local variables
 INTEGER :: MPI_ERR, MPI_PROVIDED
+INTEGER(c_int) :: sleep
 
 ! Initialize MPI environment
 CALL MPI_INIT_THREAD(MPI_THREAD_FUNNELED, MPI_PROVIDED, MPI_ERR)
@@ -22,6 +45,10 @@ CALL setupVirtualProcessGrid
 CALL setupPhysicalGrid
 ! allocate flow data array and initialize
 CALL setupFlow
+
+! wait for debuger to attcah
+sleep = FortSleep(20)
+write(*,*) sleep
 
 ! set error
 error = 1.D0
