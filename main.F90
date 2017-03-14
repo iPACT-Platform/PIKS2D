@@ -47,8 +47,8 @@ CALL setupPhysicalGrid
 CALL setupFlow
 
 ! wait for debuger to attcah
-sleep = FortSleep(20)
-write(*,*) sleep
+!sleep = FortSleep(20)
+!write(*,*) sleep
 
 ! set error
 error = 1.D0

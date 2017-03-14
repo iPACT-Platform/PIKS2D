@@ -250,7 +250,8 @@ contains
                         RhoWall=RhoWall+cx(l)*f1(k,l)
                     Enddo
                     Do l=3*Nc/4+1,Nc
-                        f1(k,l)=2.d0*f1(k-1,l)-f1(k-2,l)
+                        !f1(k,l)=2.d0*f1(k-1,l)-f1(k-2,l)
+                        f1(k,l)=1.d0*f1(k-1,l)
                         RhoWall=RhoWall+cx(l)*f1(k,l)
                     Enddo
                     RhoWall=RhoWall/DiffFlux
@@ -302,7 +303,8 @@ contains
                     !Calculate and store RhoWallY
                     RhoWall=0.d0
                     Do l=Nc/2+1,Nc
-                        RhoWall=RhoWall-cy(l)*(2.d0*f1(k+Nxtotal,l)-f1(k+2*Nxtotal,l))
+                        !RhoWall=RhoWall-cy(l)*(2.d0*f1(k+Nxtotal,l)-f1(k+2*Nxtotal,l))
+                        RhoWall=RhoWall-cy(l)*(1.d0*f1(k+Nxtotal,l))
                     Enddo
                     RhoWall=RhoWall/DiffFlux
                     ! RhoWallY(k)=RhoWall
@@ -324,7 +326,8 @@ contains
                         RhoWall=RhoWall+cx(l)*f1(k,l)
                     Enddo
                     Do l=3*Nc/4+1,Nc
-                        f1(k,l)=2.d0*f1(k-1,l)-f1(k-2,l)
+                        !f1(k,l)=2.d0*f1(k-1,l)-f1(k-2,l)
+                        f1(k,l)=1.d0*f1(k-1,l)
                         RhoWall=RhoWall+cx(l)*f1(k,l)
                     Enddo
                     RhoWall=RhoWall/DiffFlux
@@ -335,7 +338,8 @@ contains
                     !Calculate and store RhoWallY
                     RhoWall=0.d0
                     Do l=Nc/2+1,Nc
-                        RhoWall=RhoWall-cy(l)*(2.d0*f1(k+Nxtotal,l)-f1(k+2*Nxtotal,l))
+                        !RhoWall=RhoWall-cy(l)*(2.d0*f1(k+Nxtotal,l)-f1(k+2*Nxtotal,l))
+                        RhoWall=RhoWall-cy(l)*(1.d0*f1(k+Nxtotal,l))
                     Enddo
                     RhoWall=RhoWall/DiffFlux
                     !RhoWallY(k)=RhoWall
@@ -357,7 +361,8 @@ contains
                         RhoWall=RhoWall+cx(l)*f1(k,l)
                     Enddo
                     Do l=3*Nc/4+1,Nc
-                        f1(k,l)=2.d0*f1(k-1,l)-f1(k-2,l)
+                        !f1(k,l)=2.d0*f1(k-1,l)-f1(k-2,l)
+                        f1(k,l)=1.d0*f1(k-1,l)
                         RhoWall=RhoWall+cx(l)*f1(k,l)
                     Enddo
                     RhoWall=RhoWall/DiffFlux
@@ -368,7 +373,8 @@ contains
                     !Calculate and store RhoWallY
                     RhoWall=0.d0
                     Do l=1,Nc/2
-                        RhoWall=RhoWall+cy(l)*(2.d0*f1(k-Nxtotal,l)-f1(k-2*Nxtotal,l))
+                        !RhoWall=RhoWall+cy(l)*(2.d0*f1(k-Nxtotal,l)-f1(k-2*Nxtotal,l))
+                        RhoWall=RhoWall+cy(l)*(1.d0*f1(k-Nxtotal,l))
                     Enddo
                     RhoWall=RhoWall/DiffFlux
                     ! RhoWallY(k)=RhoWall
@@ -401,7 +407,8 @@ contains
                     !Calculate and store RhoWallY
                     RhoWall=0.d0
                     Do l=1,Nc/2
-                        RhoWall=RhoWall+cy(l)*(2.d0*f1(k-Nxtotal,l)-f1(k-2*Nxtotal,l))
+                        !RhoWall=RhoWall+cy(l)*(2.d0*f1(k-Nxtotal,l)-f1(k-2*Nxtotal,l))
+                        RhoWall=RhoWall+cy(l)*(1.d0*f1(k-Nxtotal,l))
                     Enddo
                     RhoWall=RhoWall/DiffFlux
                     ! RhoWallY(k)=RhoWall
@@ -448,8 +455,8 @@ contains
                 k = (j-ylg)*Nxtotal + i-xlg+1
                 !outlet
                 Do l=Nc/4+1,3*Nc/4          
-                    f1(k,l)=f1(k-Nxsub+1,l)-w(l)*PressDrop ! NOTE, for NprocX=1
-                    !f1(k,l)=f1(k+1,l)-w(l)*PressDrop ! NOTE, for NprocX=1
+                    !f1(k,l)=f1(k-Nxsub+1,l)-w(l)*PressDrop ! NOTE, for NprocX=1
+                    f1(k,l)=f1(k+1,l)-w(l)*PressDrop ! NOTE, for NprocX=1
                 Enddo
             Enddo
 !$OMP END DO            
@@ -533,7 +540,7 @@ contains
                 massSouth = 0.5d0*ds*Ux(ghostLayers+column + (yl-ylg)*Nxtotal)
             endif
             if (yu == ymax) then !only north most processors
-                massNorth = 0.5d0*ds*Ux(ghostLayers+column + (ghostLayers+Nysub)*Nxtotal)
+                massNorth = 0.5d0*ds*Ux(ghostLayers+column + (ghostLayers+Nysub-1)*Nxtotal) !bug here
             endif
             ! debug
             massLocal = (massInner + massSouth + massNorth) * 2.d0 / PressDrop

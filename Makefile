@@ -5,8 +5,8 @@ MPIFC=mpiifort
 FC=ifort
 #LFLAGS=  -g -fpe0 -fpe-all=0 -check -debug -traceback
 #CFLAGS= -c -g -fpe-all=0 -fpe0 -check -debug -traceback
-LFLAGS= -g  -fopenmp
-CFLAGS= -c -g  -fopenmp
+LFLAGS=   -fopenmp
+CFLAGS= -c   -fopenmp
 
 # Intel Fortran setting
 
