@@ -231,7 +231,8 @@ contains
                 CASE (WallXp)
                     Do l=Nc/4+1,3*Nc/4
                         !f1(k,l)=2.d0*f1(k+1,l)-f1(k+2,l)
-                        f1(k,l)=1.d0*f1(k+1,l)
+                        !f1(k,l)=1.d0*f1(k+1,l)
+                        f1(k,l)=extCoef(i,1)*f1(k+1,l) + extCoef(i,2)*f1(k+2,l)
                         RhoWall=RhoWall-cx(l)*f1(k,l)
                     Enddo
                     RhoWall=RhoWall/DiffFlux
@@ -246,12 +247,14 @@ contains
                 CASE (WallXn)
                     Do l=1,Nc/4
                         !f1(k,l)=2.d0*f1(k-1,l)-f1(k-2,l)
-                        f1(k,l)=1.d0*f1(k-1,l)
+                        !f1(k,l)=1.d0*f1(k-1,l)
+                        f1(k,l)=extCoef(i,1)*f1(k-1,l) + extCoef(i,2)*f1(k-2,l)
                         RhoWall=RhoWall+cx(l)*f1(k,l)
                     Enddo
                     Do l=3*Nc/4+1,Nc
                         !f1(k,l)=2.d0*f1(k-1,l)-f1(k-2,l)
-                        f1(k,l)=1.d0*f1(k-1,l)
+                        !f1(k,l)=1.d0*f1(k-1,l)
+                        f1(k,l)=extCoef(i,1)*f1(k-1,l) + extCoef(i,2)*f1(k-2,l)
                         RhoWall=RhoWall+cx(l)*f1(k,l)
                     Enddo
                     RhoWall=RhoWall/DiffFlux
@@ -262,7 +265,8 @@ contains
                 CASE (WallYp)
                     Do l=Nc/2+1,Nc
                         !f1(k,l)=2.d0*f1(k+Nxtotal,l)-f1(k+2*Nxtotal,l)
-                        f1(k,l)=1.d0*f1(k+Nxtotal,l)
+                        !f1(k,l)=1.d0*f1(k+Nxtotal,l)
+                        f1(k,l)=extCoef(i,1)*f1(k+Nxtotal,l) + extCoef(i,2)*f1(k+2*Nxtotal,l)
                         RhoWall=RhoWall-cy(l)*f1(k,l)
                     Enddo
                     RhoWall=RhoWall/DiffFlux
@@ -273,7 +277,8 @@ contains
                 CASE (WallYn)
                     Do l=1,Nc/2
                         !f1(k,l)=2.d0*f1(k-Nxtotal,l)-f1(k-2*Nxtotal,l)
-                        f1(k,l)=1.d0*f1(k-Nxtotal,l)
+                        !f1(k,l)=1.d0*f1(k-Nxtotal,l)
+                        f1(k,l)=extCoef(i,1)*f1(k-Nxtotal,l) + extCoef(i,2)*f1(k-2*Nxtotal,l)
                         RhoWall=RhoWall+cy(l)*f1(k,l)
                     Enddo
                     RhoWall=RhoWall/DiffFlux
@@ -288,7 +293,8 @@ contains
                     !Calculate default reflected f1 (x-direction)
                     Do l=Nc/4+1,3*Nc/4
                         !f1(k,l)=2.d0*f1(k+1,l)-f1(k+2,l)
-                        f1(k,l)=1.d0*f1(k+1,l)
+                        !f1(k,l)=1.d0*f1(k+1,l)
+                        f1(k,l)=extCoef(i,1)*f1(k+1,l) + extCoef(i,2)*f1(k+2,l)
                         RhoWall=RhoWall-cx(l)*f1(k,l)
                     Enddo
                     RhoWall=RhoWall/DiffFlux
@@ -304,7 +310,8 @@ contains
                     RhoWall=0.d0
                     Do l=Nc/2+1,Nc
                         !RhoWall=RhoWall-cy(l)*(2.d0*f1(k+Nxtotal,l)-f1(k+2*Nxtotal,l))
-                        RhoWall=RhoWall-cy(l)*(1.d0*f1(k+Nxtotal,l))
+                        !RhoWall=RhoWall-cy(l)*(1.d0*f1(k+Nxtotal,l))
+                        RhoWall=RhoWall-cy(l)*(extCoef(i,1)*f1(k+Nxtotal,l) + extCoef(i,2)*f1(k+2*Nxtotal,l)) !STOP
                     Enddo
                     RhoWall=RhoWall/DiffFlux
                     ! RhoWallY(k)=RhoWall
@@ -322,12 +329,14 @@ contains
                     !Calculate default reflected f1 (x-direction)
                     Do l=1,Nc/4
                         !f1(k,l)=2.d0*f1(k-1,l)-f1(k-2,l)
-                        f1(k,l)=1.d0*f1(k-1,l)
+                        !f1(k,l)=1.d0*f1(k-1,l)
+                        f1(k,l)=extCoef(i,1)*f1(k-1,l) + extCoef(i,2)*f1(k-2,l)
                         RhoWall=RhoWall+cx(l)*f1(k,l)
                     Enddo
                     Do l=3*Nc/4+1,Nc
                         !f1(k,l)=2.d0*f1(k-1,l)-f1(k-2,l)
-                        f1(k,l)=1.d0*f1(k-1,l)
+                        !f1(k,l)=1.d0*f1(k-1,l)
+                        f1(k,l)=extCoef(i,1)*f1(k-1,l) + extCoef(i,2)*f1(k-2,l)
                         RhoWall=RhoWall+cx(l)*f1(k,l)
                     Enddo
                     RhoWall=RhoWall/DiffFlux
@@ -339,7 +348,8 @@ contains
                     RhoWall=0.d0
                     Do l=Nc/2+1,Nc
                         !RhoWall=RhoWall-cy(l)*(2.d0*f1(k+Nxtotal,l)-f1(k+2*Nxtotal,l))
-                        RhoWall=RhoWall-cy(l)*(1.d0*f1(k+Nxtotal,l))
+                        !RhoWall=RhoWall-cy(l)*(1.d0*f1(k+Nxtotal,l))
+                        RhoWall=RhoWall-cy(l)*(extCoef(i,1)*f1(k+Nxtotal,l) + extCoef(i,2)*f1(k+2*Nxtotal,l))
                     Enddo
                     RhoWall=RhoWall/DiffFlux
                     !RhoWallY(k)=RhoWall
@@ -357,12 +367,14 @@ contains
                     !Calculate default reflected f1 (x-direction)
                     Do l=1,Nc/4
                         !f1(k,l)=2.d0*f1(k-1,l)-f1(k-2,l)
-                        f1(k,l)=1.d0*f1(k-1,l)
+                        !f1(k,l)=1.d0*f1(k-1,l)
+                        f1(k,l)=extCoef(i,1)*f1(k-1,l) + extCoef(i,2)*f1(k-2,l)
                         RhoWall=RhoWall+cx(l)*f1(k,l)
                     Enddo
                     Do l=3*Nc/4+1,Nc
                         !f1(k,l)=2.d0*f1(k-1,l)-f1(k-2,l)
-                        f1(k,l)=1.d0*f1(k-1,l)
+                        !f1(k,l)=1.d0*f1(k-1,l)
+                        f1(k,l)=extCoef(i,1)*f1(k-1,l) + extCoef(i,2)*f1(k-2,l)
                         RhoWall=RhoWall+cx(l)*f1(k,l)
                     Enddo
                     RhoWall=RhoWall/DiffFlux
@@ -374,7 +386,8 @@ contains
                     RhoWall=0.d0
                     Do l=1,Nc/2
                         !RhoWall=RhoWall+cy(l)*(2.d0*f1(k-Nxtotal,l)-f1(k-2*Nxtotal,l))
-                        RhoWall=RhoWall+cy(l)*(1.d0*f1(k-Nxtotal,l))
+                        !RhoWall=RhoWall+cy(l)*(1.d0*f1(k-Nxtotal,l))
+                        RhoWall=RhoWall+cy(l)*(extCoef(i,1)*f1(k-Nxtotal,l) + extCoef(i,2)*f1(k-2*Nxtotal,l))
                     Enddo
                     RhoWall=RhoWall/DiffFlux
                     ! RhoWallY(k)=RhoWall
@@ -392,7 +405,8 @@ contains
                     !Calculate default reflected f1 (x-direction)
                     Do l=Nc/4+1,3*Nc/4
                         !f1(k,l)=2.d0*f1(k+1,l)-f1(k+2,l)
-                        f1(k,l)=1.d0*f1(k+1,l)
+                        !f1(k,l)=1.d0*f1(k+1,l)
+                        f1(k,l)=extCoef(i,1)*f1(k+1,l) + extCoef(i,2)*f1(k+2,l)
                         RhoWall=RhoWall-cx(l)*f1(k,l)
                     Enddo
                     RhoWall=RhoWall/DiffFlux
@@ -408,7 +422,8 @@ contains
                     RhoWall=0.d0
                     Do l=1,Nc/2
                         !RhoWall=RhoWall+cy(l)*(2.d0*f1(k-Nxtotal,l)-f1(k-2*Nxtotal,l))
-                        RhoWall=RhoWall+cy(l)*(1.d0*f1(k-Nxtotal,l))
+                        !RhoWall=RhoWall+cy(l)*(1.d0*f1(k-Nxtotal,l))
+                        RhoWall=RhoWall+cy(l)*(extCoef(i,1)*f1(k-Nxtotal,l) + extCoef(i,2)*f1(k-2*Nxtotal,l))                        
                     Enddo
                     RhoWall=RhoWall/DiffFlux
                     ! RhoWallY(k)=RhoWall
@@ -437,12 +452,12 @@ contains
                 k = (j-ylg)*Nxtotal + i-xlg+1
                 !inlet
                 Do l=1,Nc/4
-                    !f1(k,l)=f1(k-1+Nxsub,l)+w(l)*PressDrop !lhzhu, need other block's info, so vgrid is perodical in x dir
-                    f1(k,l)=f1(k-1,l)+w(l)*PressDrop !lhzhu, need other block's info, so vgrid is perodical in x dir
+                    f1(k,l)=f1(k-1+Nxsub,l)+w(l)*PressDrop !lhzhu, need other block's info, so vgrid is perodical in x dir
+                    !f1(k,l)=f1(k-1,l)+w(l)*PressDrop !lhzhu, need other block's info, so vgrid is perodical in x dir
                 Enddo   
                 Do l=3*Nc/4+1,Nc
-                    !f1(k,l)=f1(k-1+Nxsub,l)+w(l)*PressDrop ! NOTE, for NprocX=1
-                    f1(k,l)=f1(k-1,l)+w(l)*PressDrop ! NOTE, for NprocX=1
+                    f1(k,l)=f1(k-1+Nxsub,l)+w(l)*PressDrop ! NOTE, for NprocX=1
+                    !f1(k,l)=f1(k-1,l)+w(l)*PressDrop ! NOTE, for NprocX=1
                 Enddo
             End do
 !$OMP END DO
@@ -455,8 +470,8 @@ contains
                 k = (j-ylg)*Nxtotal + i-xlg+1
                 !outlet
                 Do l=Nc/4+1,3*Nc/4          
-                    !f1(k,l)=f1(k-Nxsub+1,l)-w(l)*PressDrop ! NOTE, for NprocX=1
-                    f1(k,l)=f1(k+1,l)-w(l)*PressDrop ! NOTE, for NprocX=1
+                    f1(k,l)=f1(k-Nxsub+1,l)-w(l)*PressDrop ! NOTE, for NprocX=1
+                    !f1(k,l)=f1(k+1,l)-w(l)*PressDrop ! NOTE, for NprocX=1
                 Enddo
             Enddo
 !$OMP END DO            

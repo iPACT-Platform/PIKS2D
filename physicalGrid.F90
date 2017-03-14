@@ -13,8 +13,8 @@ integer, parameter :: ghostLayers = 2
 
 
 ! NX and NY is the global grid size
-integer, parameter :: Nx = (533-1)*2+1, Ny = (428-1)*2+1 !Brea stone
-!integer, parameter :: Nx = 640, Ny = 360 !Brea stone
+!integer, parameter :: Nx = (533-1)*2+1, Ny = (428-1)*2+1 !Brea stone
+integer, parameter :: Nx = 640, Ny = 360 !Brea stone
 !integer, parameter :: Nx = 269, Ny = 269 !Lei Wu
 !integer, parameter :: Nx = 100, Ny = 42 
 !integer, parameter :: Nx = 16, Ny = 10 !Brea stone
@@ -47,7 +47,7 @@ integer :: nWall
 integer, DIMENSION(:), ALLOCATABLE :: vecWall
 integer, DIMENSION(:), ALLOCATABLE :: dir1, dir2, dir3, dir4 ! dir1(i) is the ith 
 double precision, DIMENSION(:,:), ALLOCATABLE :: coefI, coefII, coefIII, coefIV
-
+double precision, DIMENSION(:,:), ALLOCATABLE :: extCoef
 contains 
     ! should be called after calling MPIParams::setupVirtualProcessGrid
     ! such that xl, xlg, xu, xug and yl, ylg, yu, yug has been set already
@@ -55,7 +55,7 @@ contains
         implicit none
 
         ! local vars
-        integer :: localid, i, j, icount, countVoidP, NneighborFluid
+        integer :: localid, i, j, l, icount, countVoidP, NneighborFluid
         integer :: bxl, bxu, byl, byu ! bound when counting fluid point for sweeping
         integer :: ii, jj
 
@@ -75,13 +75,13 @@ contains
         !switch for debuging
         !read digital image
         array2D = 0 
-        !Open(200,file='cylinder_simple.dat',status='OLD')
+        Open(200,file='cylinder_simple.dat',status='OLD')
         !Open(200,file='cylinder.dat',status='OLD')
         !Open(200,file='badsquareX.dat',status='OLD')
         !Open(200,file='leiwu.dat',status='OLD')
         !Open(200,file='small.dat',status='OLD')
         !Open(200,file='Processed_2D_Berea.dat',status='OLD')
-        Open(200,file='Processed_2x_2D_Berea.dat',status='OLD')
+        !Open(200,file='Processed_2x_2D_Berea.dat',status='OLD')
         !Open(200,file='cylinder.dat',status='OLD')
             do j=1,Ny
                 !read(200, *) (array2D(i,j), i=11, Nx-10) !NOTE: add extral layer
@@ -232,6 +232,8 @@ contains
 
         PRINT*, "nWall = ", nWall
 
+
+
         ! Create wall-type vectors
         !vecWall(walli) mark the global id of the walli'th wall in the image 
         ALLOCATE(vecWall(nWall))
@@ -267,6 +269,78 @@ contains
                 END SELECT
             Enddo
         Enddo
+
+        ! extrapolation coefficients
+        ALLOCATE(extCoef(nWall,2))
+        extCoef(:, 1) =  2.d0
+        extCoef(:, 2) = -1.d0
+        ! set extCoef
+        do l=1, nWall
+            localid = vecWall(l)
+            i = xlg -1 + mod(localid, Nxtotal) ! wall location in x 
+            j = ylg + localid / Nxtotal     ! wall location in y
+            SELECT Case (image(localid))
+                case (WallXp)
+                    if(i == xu-1 .and. image(localid+1) == fluid) then
+                        extCoef(l, 1) = 1.d0
+                        extCoef(l, 2) = 0.d0
+                    endif
+                case (WallXn)
+                    if(i == xl+1 .and. image(localid-1) == fluid) then
+                        extCoef(l, 1) = 1.d0
+                        extCoef(l, 2) = 0.d0
+                    endif
+                case (WallYp)
+                    if(j == yu-1 .and. image(localid+Nxtotal) == fluid) then
+                        extCoef(l, 1) = 1.d0
+                        extCoef(l, 2) = 0.d0
+                    endif
+                case (WallYn)
+                    if(j == yl+1 .and. image(localid-Nxtotal) == fluid) then
+                        extCoef(l, 1) = 1.d0
+                        extCoef(l, 2) = 0.d0
+                    endif
+                case (WallXpYp)
+                    if(i == xu-1 .and. image(localid+1) == fluid) then
+                        extCoef(l, 1) = 1.d0
+                        extCoef(l, 2) = 0.d0
+                    endif
+                    if(j == yu-1 .and. image(localid+Nxtotal) == fluid) then
+                        extCoef(l, 1) = 1.d0
+                        extCoef(l, 2) = 0.d0
+                    endif
+                case (WallXnYp)
+                    if(i == xl+1 .and. image(localid-1) == fluid) then
+                        extCoef(l, 1) = 1.d0
+                        extCoef(l, 2) = 0.d0
+                    endif
+                    if(j == yu-1 .and. image(localid+Nxtotal) == fluid) then
+                        extCoef(l, 1) = 1.d0
+                        extCoef(l, 2) = 0.d0
+                    endif
+                case (WallXpYn)
+                    if(i == xu-1 .and. image(localid+1) == fluid) then
+                        extCoef(l, 1) = 1.d0
+                        extCoef(l, 2) = 0.d0
+                    endif
+                    if(j == yl+1 .and. image(localid-Nxtotal) == fluid) then
+                        extCoef(l, 1) = 1.d0
+                        extCoef(l, 2) = 0.d0
+                    endif
+                case (WallXnYn)
+                    if(i == xl+1 .and. image(localid-1) == fluid) then
+                        extCoef(l, 1) = 1.d0
+                        extCoef(l, 2) = 0.d0
+                    endif
+                    if(j == yl+1 .and. image(localid-Nxtotal) == fluid) then
+                        extCoef(l, 1) = 1.d0
+                        extCoef(l, 2) = 0.d0
+                    endif
+            end select
+        enddo
+        extCoef(:, 1) =  2.d0
+        extCoef(:, 2) = -1.d0
+        PRINT*, "DONE ASSIGN extCoef"
 
         !BUG FOUND
         !Direction 1
