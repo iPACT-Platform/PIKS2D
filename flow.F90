@@ -6,10 +6,11 @@ use velocityGrid, only: PI
 implicit none
 save
 
-double precision, parameter :: Kn = 1.0d-1
-double precision, parameter :: mu = dsqrt(PI)/2.0d0/Kn
-double precision, parameter :: PressDrop=1.0d-3
-double precision, parameter :: accom = 1.0d0
+! flow parameters, to be read from NML: flowNml
+double precision :: Kn, pressDrop, accom
+
+double precision :: mu
+
 
 double precision, DIMENSION(:,:), ALLOCATABLE :: f1
 double precision, DIMENSION(:), ALLOCATABLE :: Rho, Ux, Uy
@@ -23,6 +24,8 @@ contains
                              f1_south_snd, f1_north_snd, f1_south_rcv, f1_north_rcv
         implicit none
 
+        mu= dsqrt(PI)/2.0d0/Kn
+        
         ALLOCATE(f1(Ntotal,Nc))
         ALLOCATE(Rho(Ntotal), Ux(Ntotal), Uy(Ntotal))
 

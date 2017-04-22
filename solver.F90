@@ -6,10 +6,11 @@ use physicalGrid
 use mpiParams
 
 implicit none
+! to be read from NML: solverNml
+double precision :: eps
+integer :: maxStep
+integer :: interval
 
-double precision, parameter :: eps=1.d-10
-integer, parameter :: maxStep = 30000
-integer, parameter :: interval = 1000
 integer :: iStep
 double precision :: error
 

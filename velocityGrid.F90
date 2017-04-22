@@ -2,40 +2,55 @@
 !> @brief Physical space configurations
 !=======================================================================
 module velocityGrid
-integer, parameter :: Nc_fundamental=2 !Number of fundamental molecular velocity
-integer, parameter :: Nc=(2*Nc_fundamental)**2 !Number of moleculer velocity in 2D-Gaussian Hermite
-integer, parameter :: Vmax=5
-integer, parameter :: power_law=3
-!integer, parameter :: Nphi=100 !Number of discrete point in angular of polar coordinate mode(Nphi,4)=0
-!integer, parameter :: Nc=Nc_fundamental*Nphi !Number of molecular velocity in polar coordinate
-double precision, DIMENSION (1:Nc_fundamental) :: xi, weight1D !abscissae and weighting Hermite quadrature
-double precision, DIMENSION (1:Nc) :: cx, cy, w !molecular velocity and weighting
-integer, DIMENSION (1:Nc) :: oppositeX, oppositeY! specular wall's normal vector in X, Y direction
+use gaussHermite
+
+implicit none
+
+!Number of fundamental molecular velocity, to be read from NML: velocityNml
+integer :: Nc_fundamental
+
+!Number of moleculer velocity in 2D-Gaussian Hermite
+integer :: Nc
+!abscissae and weighting Hermite quadrature, dimension(Nc_fundamental)
+double precision, dimension (:), allocatable :: xi, weight1D 
+!molecular velocity and weighting, dimension(Nc)
+double precision, dimension (:), allocatable :: cx, cy, w
+!specular wall's normal vector in X, Y direction, dimension(Nc)
+integer, dimension (:), allocatable :: oppositeX, oppositeY
+!constant PI
 double precision, parameter :: PI=datan(1.d0)*4.d0
+
+!half range flux of discrete velocity grid 
 double precision :: DiffFlux
 
 contains
     subroutine setupVelocityGrid
-        integer :: l, m, n
-        !Gaussian Hermite 4th order (Half-range)
-        !xi(1) = 0.3001939310608394d0         !fundamental abscissae
-        !xi(2) = 0.1252421045333717d1
-        !weight1D(1) = 0.6405291796843786d0/dsqrt(PI)    !fundamental weighting
-        !weight1D(2) = 0.2456977457683793d0/dsqrt(PI)
+        implicit none
+        integer :: l, m, n, i
 
-    
-        !xi(1) = 1.90554149798192d-1         !fundamental abscissae
-        !xi(2) = 8.48251867544577d-1
-        !xi(3) = 1.79977657841573d0 
-        !weight1D(1) = 4.46029770466658d-1/dsqrt(PI)    !fundamental weighting
-        !weight1D(2) = 3.96468266998335d-1/dsqrt(PI)
-        !weight1D(3) = 4.37288879877644d-2/dsqrt(PI)
+        ! Nc_fundamental has been initialized from the NML
+        allocate(xi(Nc_fundamental))
+        allocate(weight1D(Nc_fundamental))
 
-        xi(1) = dsqrt(3.d0-dsqrt(6.d0)) /dsqrt(2.d0)         !fundamental abscissae
-        xi(2) = dsqrt(3.d0+dsqrt(6.d0)) /dsqrt(2.d0)
-        weight1D(1) = (3.d0+dsqrt(6.d0))/12.d0    !fundamental weighting
-        weight1D(2) = (3.d0-dsqrt(6.d0))/12.d0
+        if ( Nc_fundamental == 2) then
+            xi = xi2
+            weight1D = wi2
+        else if (Nc_fundamental == 10) then
+            xi = xi10
+            weight1D = wi10
+        else
+            print*, "Nc_fundamental xi/wi for ", Nc_fundamental, &
+             "has not been provided"
+            deallocate(xi)
+            deallocate(weight1D)
+            stop
+        endif
 
+        Nc=(2*Nc_fundamental)**2
+
+        allocate(cx(Nc), cy(Nc), w(Nc))
+        allocate(oppositeX(Nc), oppositeY(Nc))
+        
         Do i=1,4    ! index for molecular velocity group I,II,III,IV
              Do m=1,Nc_fundamental
                 Do n=1,Nc_fundamental
@@ -44,8 +59,8 @@ contains
                         CASE (1)
                             cx(l) = xi(n)
                             cy(l) = xi(m)
-                            oppositeY(l)=l+3*Nc/4   ! specular wall's normal vector in Y direction
-                            oppositeX(l)=l+Nc/4     ! specular wall's normal vector in X direction
+                            oppositeY(l)=l+3*Nc/4
+                            oppositeX(l)=l+Nc/4
                         CASE (2)
                             cx(l) = -xi(n)
                             cy(l) = xi(m)
@@ -72,12 +87,6 @@ contains
             DiffFlux=DiffFlux+cy(l)*w(l)
         Enddo
 
-        !open(10,file='Test.dat',STATUS="REPLACE")
-        !write(10,*) 'Velocity space D2Q16: l, cx, cy, w, oppositeX, oppositeY'
-        !Do l=1,Nc
-        !    write(10,*) l, cx(l), cy(l), w(l), oppositeX(l), oppositeY(l)
-        !Enddo
-        !close(10)
     end subroutine setupVelocityGrid
 
 end module velocityGrid

@@ -19,6 +19,7 @@ end module Fortran_Sleep
 
 PROGRAM main
 !Common Variables
+USE parameters
 USE flow
 USE MPIParams
 USE MPI ! this is system mpi
@@ -32,10 +33,18 @@ IMPLICIT NONE
 INTEGER :: MPI_ERR, MPI_PROVIDED
 INTEGER(c_int) :: sleep
 
+
 ! Initialize MPI environment
 CALL MPI_INIT_THREAD(MPI_THREAD_FUNNELED, MPI_PROVIDED, MPI_ERR)
 CALL MPI_COMM_SIZE(MPI_COMM_WORLD, nprocs, MPI_ERR)
 CALL MPI_COMM_RANK(MPI_COMM_WORLD, proc, MPI_ERR)
+
+! initialize (read) user input parmeters
+call initParams
+! check if read ok?
+if (proc == master) then
+  call printParams
+endif
 
 ! setup discrete velocity grid
 CALL setupVelocityGrid
@@ -53,10 +62,10 @@ CALL setupFlow
 ! set error
 error = 1.D0
 ! Main iteration loop
-DO iStep = 1, MaxStep
+DO iStep = 1, maxStep
 ! Save data if required
     CALL iterate
-    !if(proc==master) PRINT*, "STEP: ", iStep
+    ! if(proc==master) PRINT*, "STEP: ", iStep
     IF ( MOD(iStep,interval) == 0 ) CALL chkConverge
     IF ( MOD(iStep,interval) == 0 ) CALL saveFlowField
 ! Test flow field convergence

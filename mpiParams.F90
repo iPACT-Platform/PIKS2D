@@ -10,14 +10,16 @@ MODULE mpiParams
 IMPLICIT NONE
 SAVE
 
+!domain decomposition defs, to be read from NML: mpiNml
+INTEGER :: mpi_xdim
+INTEGER :: mpi_ydim
 
 ! Constant tags used in the mpi exchanges
 INTEGER, PARAMETER :: TAG1 = 1, TAG2 = 2, TAG3 = 3, TAG4 = 4
 
 ! Communication parameters
 INTEGER :: nprocs, proc, vproc
-INTEGER, parameter :: mpi_xdim = 2
-INTEGER, parameter :: mpi_ydim = 2
+
 INTEGER :: east, west, north, south, MPI_COMM_VGRID
 INTEGER, PARAMETER :: master  = 0
 INTEGER, PARAMETER :: mpi_dim = 2
@@ -35,7 +37,7 @@ double precision, ALLOCATABLE, DIMENSION(:) :: f1_south_rcv, f1_north_rcv
 INTEGER :: mpi_group_inlet
 INTEGER :: mpi_group_global
 INTEGER :: mpi_comm_inlet
-INTEGER :: inlet_rank(mpi_ydim)
+INTEGER, allocatable, dimension(:) :: inlet_rank
 contains
 !-------------------------------------------------------------------------------
 ! Subroutine : setupVirtualProcessGrid
@@ -57,7 +59,8 @@ contains
 !! command MPI_CART_CREATE() from being recognized.
     subroutine setupVirtualProcessGrid    
         !Variables to be set
-        use physicalGrid, only : xl, xlg, xmax, xmin, xu, xug, yl, ylg, ymax, ymin, yu, yug, ghostLayers
+        use physicalGrid, only : xl, xlg, xmax, xmin, xu, xug, &
+         yl, ylg, ymax, ymin, yu, yug, ghostLayers, Nx, Ny
         use MPI
         IMPLICIT NONE
         
@@ -88,6 +91,11 @@ contains
         CALL MPI_CART_COORDS(MPI_COMM_VGRID, vproc, mpi_dim, mpi_coords, MPI_ERR)
         !PRINT*, "After first mpi_cart_coords", proc
         
+        xmin = 1
+        xmax = Nx
+        ymin = 1
+        ymax = Ny
+
         !------- Compute the limits [(xl,xu),(yl,yu)] assigned to this processor ------
         !Partitioning in the x direction
         complete = (xmax - xmin) / dims(1)
@@ -130,6 +138,7 @@ contains
         CALL MPI_CART_SHIFT(MPI_COMM_VGRID, direction, shift, south, north, MPI_ERR)
         ! west/east and sourth/north has been assigned above
 
+        allocate(inlet_rank(mpi_ydim))
         ! Create 
         CALL MPI_COMM_GROUP(MPI_COMM_VGRID, mpi_group_global, MPI_ERR)
         do j = 1, mpi_ydim

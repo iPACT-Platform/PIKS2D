@@ -2,30 +2,39 @@
 !> @brief Physical space configurations
 !=======================================================================
 module physicalGrid
-IMPLICIT NONE
-SAVE
+implicit none
+save
 
-! Domain size
+!domain defination, to be read from NML: velocityNml
+! Total domain size
+integer :: Nx, Ny
+! image file name
+character(len=30):: imageFileName
+! wall extrapolation order, 1, 2, 3(mixed)
+integer :: wallExtOrder
 
+!subdomain bounds
 integer :: xl, xu, yl, yu
+!subdomain with ghostLayers bounds
 integer :: xlg, xug, ylg, yug
+! ghostLayers
 integer, parameter :: ghostLayers = 2
+! 2D porous structure image file (ascii)
+integer, parameter :: IMAGEFILE = 200
 
 
 ! NX and NY is the global grid size
-integer, parameter :: Nx = (533-1)*2+1, Ny = (428-1)*2+1 !Brea stone
+!integer, parameter :: Nx = (533-1)*2+1, Ny = (428-1)*2+1 !Brea stone
 !integer, parameter :: Nx = 640, Ny = 360 !Brea stone
 !integer, parameter :: Nx = 269, Ny = 269 !Lei Wu
 !integer, parameter :: Nx = 100, Ny = 42 
 !integer, parameter :: Nx = 16, Ny = 10 !Brea stone
 !integer, parameter :: Nx = 533, Ny = 428 !Brea stone
 !integer, parameter :: Nx = 801, Ny = 401  !Qsgs
-integer, parameter :: xmin = 1
-integer, parameter :: xmax = Nx
-integer, parameter :: ymin = 1
-integer, parameter :: ymax = Ny
+
+integer :: xmin, xmax, ymin, ymax
 integer :: Nxtotal, Nytotal, Nxsub, Nysub, Ntotal
-double precision, parameter :: ds =  0.5d0/(Ny-1)
+double precision :: ds
 integer, parameter :: column=2 ! layer to extract flow rate
 
 ! raw and extended flag array
@@ -48,6 +57,7 @@ integer, DIMENSION(:), ALLOCATABLE :: vecWall
 integer, DIMENSION(:), ALLOCATABLE :: dir1, dir2, dir3, dir4 ! dir1(i) is the ith 
 double precision, DIMENSION(:,:), ALLOCATABLE :: coefI, coefII, coefIII, coefIV
 double precision, DIMENSION(:,:), ALLOCATABLE :: extCoef
+
 contains 
     ! should be called after calling MPIParams::setupVirtualProcessGrid
     ! such that xl, xlg, xu, xug and yl, ylg, yu, yug has been set already
@@ -58,6 +68,8 @@ contains
         integer :: localid, i, j, l, icount, countVoidP, NneighborFluid
         integer :: bxl, bxu, byl, byu ! bound when counting fluid point for sweeping
         integer :: ii, jj
+
+        ds = 0.5d0/(Ny-1)
 
         ! set the extend and sizes
         Nxtotal = xug - xlg + 1
@@ -81,7 +93,7 @@ contains
         !Open(200,file='leiwu.dat',status='OLD')
         !Open(200,file='small.dat',status='OLD')
         !Open(200,file='Processed_2D_Berea.dat',status='OLD')
-        Open(200,file='Processed_2x_2D_Berea.dat',status='OLD')
+        Open(IMAGEFILE,file=imageFileName,status='OLD')
         !Open(200,file='cylinder.dat',status='OLD')
             do j=1,Ny
                 !read(200, *) (array2D(i,j), i=11, Nx-10) !NOTE: add extral layer
@@ -136,8 +148,8 @@ contains
         enddo
 
         ! calu. poresity
-        real_porosity=real(countVoidP)/real(Nx*Ny)
-        PRINT*, real_porosity
+        ! real_porosity=real(countVoidP)/real(Nx*Ny)
+        ! PRINT*, real_porosity
 
         ! set local image
         image = fluid
@@ -274,7 +286,7 @@ contains
         ALLOCATE(extCoef(nWall,2))
         extCoef(:, 1) =  2.d0
         extCoef(:, 2) = -1.d0
-        ! set extCoef
+        ! set extCoef, if near communication boundary, use 1st order (mixed)
         do l=1, nWall
             localid = vecWall(l)
             i = xlg -1 + mod(localid, Nxtotal) ! wall location in x 
@@ -339,17 +351,18 @@ contains
             end select
         enddo
 
-        ! reset to 2nd 
-        extCoef(:, 1) =  2.d0
-        extCoef(:, 2) = -1.d0
-        PRINT*, "DONE ASSIGN 2nd extCoef"
+        if(wallExtOrder == 2) then
+            ! reset to 2nd order
+            extCoef(:, 1) =  2.d0
+            extCoef(:, 2) = -1.d0
+        else if (wallExtOrder == 1) then
+            ! reset to 1st order
+            extCoef(:, 1) =  1.d0
+            extCoef(:, 2) =  0.d0
+        else if (wallExtOrder /= 3) then
+            PRINT*, "Error: wallExtOrder wroond shoud be [1|2|3]"
+        endif
 
-        ! reset to 1st 
-        !extCoef(:, 1) =  1.d0
-        !extCoef(:, 2) =  0.d0
-        !PRINT*, "DONE ASSIGN 1st extCoef"
-
-        !BUG FOUND
         !Direction 1
         !bound
         bxl = xl
