@@ -8,7 +8,7 @@ use mpiParams
 implicit none
 
 double precision, parameter :: eps=1.d-10
-integer, parameter :: maxStep = 20000000
+integer, parameter :: maxStep = 30000
 integer, parameter :: interval = 1000
 integer :: iStep
 double precision :: error
@@ -452,12 +452,12 @@ contains
                 k = (j-ylg)*Nxtotal + i-xlg+1
                 !inlet
                 Do l=1,Nc/4
-                    f1(k,l)=f1(k-1+Nxsub,l)+w(l)*PressDrop !lhzhu, need other block's info, so vgrid is perodical in x dir
-                    !f1(k,l)=f1(k-1,l)+w(l)*PressDrop !lhzhu, need other block's info, so vgrid is perodical in x dir
+                    !f1(k,l)=f1(k-1+Nxsub,l)+w(l)*PressDrop !lhzhu, need other block's info, so vgrid is perodical in x dir
+                    f1(k,l)=f1(k-1,l)+w(l)*PressDrop !lhzhu, need other block's info, so vgrid is perodical in x dir
                 Enddo   
                 Do l=3*Nc/4+1,Nc
-                    f1(k,l)=f1(k-1+Nxsub,l)+w(l)*PressDrop ! NOTE, for NprocX=1
-                    !f1(k,l)=f1(k-1,l)+w(l)*PressDrop ! NOTE, for NprocX=1
+                    !f1(k,l)=f1(k-1+Nxsub,l)+w(l)*PressDrop ! NOTE, for NprocX=1
+                    f1(k,l)=f1(k-1,l)+w(l)*PressDrop ! NOTE, for NprocX=1
                 Enddo
             End do
 !$OMP END DO
@@ -470,8 +470,8 @@ contains
                 k = (j-ylg)*Nxtotal + i-xlg+1
                 !outlet
                 Do l=Nc/4+1,3*Nc/4          
-                    f1(k,l)=f1(k-Nxsub+1,l)-w(l)*PressDrop ! NOTE, for NprocX=1
-                    !f1(k,l)=f1(k+1,l)-w(l)*PressDrop ! NOTE, for NprocX=1
+                    !f1(k,l)=f1(k-Nxsub+1,l)-w(l)*PressDrop ! NOTE, for NprocX=1
+                    f1(k,l)=f1(k+1,l)-w(l)*PressDrop ! NOTE, for NprocX=1
                 Enddo
             Enddo
 !$OMP END DO            
@@ -551,6 +551,7 @@ contains
                 k=(j-ylg)*Nxtotal + column+ghostLayers
                 massInner=massInner+Ux(k)*ds
             enddo
+            !print*, "massInner=",  massInner
             if (yl == ymin) then !only south most processors
                 massSouth = 0.5d0*ds*Ux(ghostLayers+column + (yl-ylg)*Nxtotal)
             endif
@@ -559,6 +560,7 @@ contains
             endif
             ! debug
             massLocal = (massInner + massSouth + massNorth) * 2.d0 / PressDrop
+            !print*, "massLocal=",  massLocal
 
             ! reduction
             call MPI_ALLREDUCE(massLocal, mass2, 1, MPI_DOUBLE_PRECISION, MPI_SUM, &
@@ -567,7 +569,7 @@ contains
             error=dabs(1.d0-mass2/mass)/(interval)
             mass=mass2
             if (proc == master) then           
-                permeability=mass*Kn*sqrt(4.d0/PI)*(Nx-1)/(Ny-1)/2    
+                permeability=mass*Kn*dsqrt(4.d0/PI)*(Nx-1)/(Ny-1)/2.d0    
                 write(*,"( 1I10, 3ES15.6)")  iStep,  mass,  permeability, error
                 open(22,file='Results.dat', position="append")
                 write(22,'(4ES15.6, 1I15)') Kn, mass, permeability, error, iStep
