@@ -1,0 +1,22 @@
+&physicalNml
+imageFileName = 'leiwu.dat',
+Nx = 269,
+Ny = 269,
+wallExtOrder = 1/
+
+&velocityNml
+Nc_fundamental = 2/
+
+&mpiNml
+mpi_xdim = 1,
+mpi_ydim = 1/
+
+&solverNml
+maxStep = 100,
+interval = 10,
+eps = 1.0d-10/
+
+&flowNml
+Kn = 0.1d0,
+pressDrop = 1.0d-3,
+accom = 1.0/
