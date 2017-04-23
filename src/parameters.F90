@@ -7,9 +7,9 @@ use solver
 implicit none
 
 namelist /physicalNml/ imageFileName, Nx, Ny, wallExtOrder
-namelist /velocityNml/ Nc_fundamental
+namelist /velocityNml/ Nc_fundamental, halfRange
 namelist /mpiNml/ mpi_xdim, mpi_ydim
-namelist /solverNml/ maxStep, interval, eps
+namelist /solverNml/ maxStep, chkConvergeStep, saveStep, eps
 namelist /flowNml/ Kn, pressDrop, accom
 ! file units
 integer, parameter :: PARAFILE = 10
@@ -46,10 +46,12 @@ contains
         print*, "Ny = ", Ny
         print*, "wallExtOrder = ", wallExtOrder
         print*, "Nc_fundamental = ", Nc_fundamental
+        print*, "halfRange = ", halfRange
         print*, "mpi_xdim = ", mpi_xdim
         print*, "mpi_ydim = ", mpi_ydim
         print*, "maxStep = ", maxStep
-        print*, "interval = ", interval
+        print*, "chkConvergeStep = ", chkConvergeStep
+        print*, "saveStep = ", saveStep
         print*, "eps = ", eps
         print*, "Kn = ", Kn
         print*, "pressDrop = ", pressDrop

@@ -32,6 +32,7 @@ IMPLICIT NONE
 ! Local variables
 INTEGER :: MPI_ERR, MPI_PROVIDED
 INTEGER(c_int) :: sleep
+double precision :: startTime, endTime
 
 
 ! Initialize MPI environment
@@ -61,18 +62,23 @@ CALL setupFlow
 
 ! set error
 error = 1.D0
+startTime = MPI_Wtime()
 ! Main iteration loop
 DO iStep = 1, maxStep
 ! Save data if required
     CALL iterate
     ! if(proc==master) PRINT*, "STEP: ", iStep
-    IF ( MOD(iStep,interval) == 0 ) CALL chkConverge
-    IF ( MOD(iStep,interval) == 0 ) CALL saveFlowField
-! Test flow field convergence
+    IF ( MOD(iStep,chkConvergeStep) == 0 ) CALL chkConverge
+    IF ( MOD(iStep,saveStep) == 0 ) CALL saveFlowField
     IF ( error <= eps ) then
         EXIT
     ENDIF
 END DO
+endTime = MPI_Wtime()
+if(proc==master) then
+    write(*,'(A,ES11.2, A, I6, A, ES15.6)') "Walltime= ", endTime - startTime, &
+    ", Steps= ", iStep, ", K= ", permeability
+endif
 
 ! Save final data
 CALL saveFlowField

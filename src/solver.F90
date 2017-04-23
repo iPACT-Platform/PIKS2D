@@ -9,10 +9,12 @@ implicit none
 ! to be read from NML: solverNml
 double precision :: eps
 integer :: maxStep
-integer :: interval
+integer :: chkConvergeStep
+integer :: saveStep
 
 integer :: iStep
 double precision :: error
+double precision :: permeability
 
 contains
     subroutine iterate
@@ -532,7 +534,6 @@ contains
         implicit none
 
         ! local vars
-        double precision :: permeability
         integer :: byl, byu, k, j, MPI_ERR
         double precision :: massInner, massNorth, massSouth
         double precision :: massLocal, mass2
@@ -567,14 +568,14 @@ contains
             call MPI_ALLREDUCE(massLocal, mass2, 1, MPI_DOUBLE_PRECISION, MPI_SUM, &
                                mpi_comm_inlet, MPI_ERR)
 
-            error=dabs(1.d0-mass2/mass)/(interval)
+            error=dabs(1.d0-mass2/mass)/(chkConvergeStep)
             mass=mass2
             if (proc == master) then           
                 permeability=mass*Kn*dsqrt(4.d0/PI)*(Nx-1)/(Ny-1)/2.d0    
                 write(*,"( 1I10, 3ES15.6)")  iStep,  mass,  permeability, error
-                open(22,file='Results.dat', position="append")
-                write(22,'(4ES15.6, 1I15)') Kn, mass, permeability, error, iStep
-                close(22)
+                !open(22,file='Results.dat', position="append")
+                !write(22,'(4ES15.6, 1I15)') Kn, mass, permeability, error, iStep
+                !close(22)
             endif
         endif
         !bcast error so every process in WORLD can stop

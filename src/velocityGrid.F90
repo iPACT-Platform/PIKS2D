@@ -8,6 +8,7 @@ implicit none
 
 !Number of fundamental molecular velocity, to be read from NML: velocityNml
 integer :: Nc_fundamental
+logical :: halfRange
 
 !Number of moleculer velocity in 2D-Gaussian Hermite
 integer :: Nc
@@ -32,18 +33,52 @@ contains
         allocate(xi(Nc_fundamental))
         allocate(weight1D(Nc_fundamental))
 
-        if ( Nc_fundamental == 2) then
-            xi = xi2
-            weight1D = wi2
-        else if (Nc_fundamental == 10) then
-            xi = xi10
-            weight1D = wi10
+        if(halfRange == .TRUE.) then
+            select case (Nc_fundamental)
+                case(2)
+                    xi = xi2
+                    weight1D = wi2
+                case(4)
+                    xi = xi4
+                    weight1D = wi4
+                case(8)
+                    xi = xi8
+                    weight1D = wi8
+                case(12)
+                    xi = xi12
+                    weight1D = wi12
+                case(16)
+                    xi = xi16
+                    weight1D = wi16
+                case default
+                    print*, "Nc_fundamental xi/wi for ", Nc_fundamental, &
+                     "has not been provided"
+                    deallocate(xi)
+                    deallocate(weight1D)
+            end select
         else
-            print*, "Nc_fundamental xi/wi for ", Nc_fundamental, &
-             "has not been provided"
-            deallocate(xi)
-            deallocate(weight1D)
-            stop
+            select case (Nc_fundamental)
+                case(2)
+                    xi = hxi2
+                    weight1D = hwi2
+                case(4)
+                    xi = hxi4
+                    weight1D = hwi4
+                case(8)
+                    xi = hxi8
+                    weight1D = hwi8
+                case(12)
+                    xi = hxi12
+                    weight1D = hwi12
+                case(16)
+                    xi = hxi16
+                    weight1D = hwi16
+                case default
+                    print*, "Nc_fundamental xi/wi for ", Nc_fundamental, &
+                     "has not been provided"
+                    deallocate(xi)
+                    deallocate(weight1D)
+            end select
         endif
 
         Nc=(2*Nc_fundamental)**2

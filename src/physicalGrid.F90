@@ -22,16 +22,6 @@ integer, parameter :: ghostLayers = 2
 ! 2D porous structure image file (ascii)
 integer, parameter :: IMAGEFILE = 20
 
-
-! NX and NY is the global grid size
-!integer, parameter :: Nx = (533-1)*2+1, Ny = (428-1)*2+1 !Brea stone
-!integer, parameter :: Nx = 640, Ny = 360 !Brea stone
-!integer, parameter :: Nx = 269, Ny = 269 !Lei Wu
-!integer, parameter :: Nx = 100, Ny = 42 
-!integer, parameter :: Nx = 16, Ny = 10 !Brea stone
-!integer, parameter :: Nx = 533, Ny = 428 !Brea stone
-!integer, parameter :: Nx = 801, Ny = 401  !Qsgs
-
 integer :: xmin, xmax, ymin, ymax
 integer :: Nxtotal, Nytotal, Nxsub, Nysub, Ntotal
 double precision :: ds
@@ -87,44 +77,11 @@ contains
         !switch for debuging
         !read digital image
         array2D = 0 
-        !Open(200,file='cylinder_simple2.dat',status='OLD')
-        !Open(200,file='cylinder.dat',status='OLD')
-        !Open(200,file='badsquareX.dat',status='OLD')
-        !Open(200,file='leiwu.dat',status='OLD')
-        !Open(200,file='small.dat',status='OLD')
-        !Open(200,file='Processed_2D_Berea.dat',status='OLD')
         Open(IMAGEFILE,file=imageFileName,status='OLD')
-        !Open(200,file='cylinder.dat',status='OLD')
             do j=1,Ny
-                !read(200, *) (array2D(i,j), i=11, Nx-10) !NOTE: add extral layer
                 read(IMAGEFILE, *) (array2D(i,j), i=1, Nx) !NOTE: add extral layer
             enddo
         close(IMAGEFILE)
-        !array2D(:,179) = 0
-        !let inlet and outlet to be fluid
-        !array2D(1,:) = 0
-        !array2D(2,:) = 0
-        !array2D(Nx,:) = 0
-        !array2D(Nx-1,:) = 0
-
-        ! straight channel
-        !array2D=0 !NOTE, for debug
-        !do j = 1, 2
-        !   array2D(:,j) = 1
-        !end do
-        !do j = Ny-1, Ny
-        !array2D(:,j) = 1
-        !end do
-
-        !!mast problemic points
-        !do j = 76, 80
-        !    do i = 263, 268
-        !        array2D(i,j) = 0
-        !    enddo
-        !enddo
-        !!mask
-        !array2D(266, 105) = 1
-        !array2D(267, 105) = 1
 
         ! set array2g
         array2Dg = ghost ! outer bound

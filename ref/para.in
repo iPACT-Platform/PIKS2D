@@ -2,10 +2,11 @@
 imageFileName = 'leiwu.dat',
 Nx = 269,
 Ny = 269,
-wallExtOrder = 1/
+wallExtOrder = 2/
 
 &velocityNml
-Nc_fundamental = 2/
+Nc_fundamental = 2,
+halfRange = T/
 
 &mpiNml
 mpi_xdim = 1,
@@ -13,7 +14,8 @@ mpi_ydim = 1/
 
 &solverNml
 maxStep = 100,
-interval = 10,
+chkConvergeStep = 10,
+saveStep = 1000,
 eps = 1.0d-10/
 
 &flowNml
