@@ -1,0 +1,56 @@
+# GNU Fotran setting
+#MPIFC=mpiifort
+#FC=ifort
+MPIFC=mpiifort
+FC=ifort
+#LFLAGS=  -g -fpe0 -fpe-all=0 -check -debug -traceback
+#CFLAGS= -c -g -fpe-all=0 -fpe0 -check -debug -traceback
+#LFLAGS=   -fopenmp
+#CFLAGS= -c   -fopenmp
+LFLAGS= -g
+CFLAGS= -c -g
+# Intel Fortran setting
+
+PROJDIR := $(shell pwd)
+SOURCEDIR := $(PROJDIR)/src
+BUILDDIR := $(PROJDIR)/build
+SOURCES := $(wildcard $(SOURCEDIR)/*.F90)
+OBJS := $(subst .F90,.o,$(notdir $(SOURCES)))
+
+TARGET = dvm.x
+
+main_DEP = mpiParams solver parameters
+parameters_DEP = velocityGrid physicalGrid mpiParams solver flow
+velocityGrid_DEP = gaussHermite
+flow_DEP = velocityGrid physicalGrid mpiParams
+mpiParams_DEP = physicalGrid
+solver_DEP = velocityGrid physicalGrid flow mpiParams
+gaussHermite = 
+physicalGrid_DEP = 
+
+#Link into an excutable
+$(TARGET) : $(OBJS)
+	$(MPIFC) $(LFLAGS) $(addprefix $(BUILDDIR)/,$(OBJS)) -I$(BUILDDIR) -o $(BUILDDIR)/$(TARGET)
+
+define generateObjRules
+$(1): $(SOURCEDIR)/$(1:.o=.F90) $(addsuffix .mod,$($(1:.o=_DEP)))
+	$(MPIFC) $(CFLAGS) $(SOURCEDIR)/$(1:.o=.F90) -I$(BUILDDIR) -module $(BUILDDIR) -o $(BUILDDIR)/$(1)
+endef
+
+define generateModRules
+$(1:.o=.mod): $(SOURCEDIR)/$(1:.o=.F90) $(1)
+	@true
+endef
+
+# Generate rules .o file
+$(foreach objitem,$(OBJS), $(eval $(call generateObjRules,$(objitem))))
+# Generate rules for .mod file
+$(foreach objitem,$(OBJS), $(eval $(call generateModRules,$(objitem))))
+
+.PHONY: all clean
+
+# Build options
+all: $(TARGET)
+
+clean:
+	rm -f build

@@ -591,7 +591,7 @@ contains
         write(20,*) ' TITLE=" Field"'
         write(20,*) 'StrandID='//itoa(iStep)//',SolutionTime='//itoa(iStep)
         write(20,*) ' VARIABLES=x,y,flag,Rho,Ux,Uy'
-        write(20,'(A,I0.3,A,I,A,I,A)') ' ZONE T=proc', proc, ', I=', Nxsub,', J=', Nysub,', F=POINT'
+        write(20,'(A,I0.3,A,I4,A,I4,A)') ' ZONE T=proc', proc, ', I=', Nxsub,', J=', Nysub,', F=POINT'
 
         Do j=yl,yu
             Do i=xl,xu
