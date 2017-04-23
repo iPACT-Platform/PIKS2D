@@ -33,7 +33,7 @@ contains
         allocate(xi(Nc_fundamental))
         allocate(weight1D(Nc_fundamental))
 
-        if(halfRange == .TRUE.) then
+        if(.not. halfRange) then
             select case (Nc_fundamental)
                 case(2)
                     xi = xi2

@@ -521,9 +521,6 @@ contains
             endif
         End do
 !$OMP END DO
-        !debug
-        !if(proc == master) PRINT*, "U = ", Uy(36)
-        !if(proc == master) PRINT*, image(36)
 
 !$OMP END PARALLEL
 
@@ -562,7 +559,6 @@ contains
             endif
             ! debug
             massLocal = (massInner + massSouth + massNorth) * 2.d0 / PressDrop
-            !print*, "massLocal=",  massLocal
 
             ! reduction
             call MPI_ALLREDUCE(massLocal, mass2, 1, MPI_DOUBLE_PRECISION, MPI_SUM, &
