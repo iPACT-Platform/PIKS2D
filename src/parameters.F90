@@ -12,13 +12,13 @@ namelist /mpiNml/ mpi_xdim, mpi_ydim
 namelist /solverNml/ maxStep, interval, eps
 namelist /flowNml/ Kn, pressDrop, accom
 ! file units
-integer, parameter :: PARAFILE = 100
+integer, parameter :: PARAFILE = 10
 
 contains 
     subroutine initParams
         integer :: ios
         ! read file called "para.in" using namelist of Fortran 90
-        open(unit=PARAFILE,file="para.in",status='old',iostat=ios)
+        open(unit=PARAFILE,file='para.in',status='old',iostat=ios)
         if (ios /= 0) then
             print*,'ERROR: could not open namelist file'
             stop

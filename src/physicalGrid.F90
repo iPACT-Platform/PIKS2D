@@ -20,7 +20,7 @@ integer :: xlg, xug, ylg, yug
 ! ghostLayers
 integer, parameter :: ghostLayers = 2
 ! 2D porous structure image file (ascii)
-integer, parameter :: IMAGEFILE = 200
+integer, parameter :: IMAGEFILE = 20
 
 
 ! NX and NY is the global grid size
@@ -97,9 +97,9 @@ contains
         !Open(200,file='cylinder.dat',status='OLD')
             do j=1,Ny
                 !read(200, *) (array2D(i,j), i=11, Nx-10) !NOTE: add extral layer
-                read(200, *) (array2D(i,j), i=1, Nx) !NOTE: add extral layer
+                read(IMAGEFILE, *) (array2D(i,j), i=1, Nx) !NOTE: add extral layer
             enddo
-        close(200)
+        close(IMAGEFILE)
         !array2D(:,179) = 0
         !let inlet and outlet to be fluid
         !array2D(1,:) = 0
