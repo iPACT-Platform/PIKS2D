@@ -3,3 +3,7 @@
 *.dat
 *.x
 *.out
+build
+run
+CMakeLists.txt
+
