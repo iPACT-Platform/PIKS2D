@@ -8,3 +8,4 @@ run
 CMakeLists.txt
 Makefile
 old
+debug
