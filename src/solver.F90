@@ -18,8 +18,8 @@ double precision :: permeability
 
 contains
     subroutine iterate
-        use MPI
         implicit none
+        include "mpif.h"
         integer :: k, l, i, j, shiftll, shiftuu
         INTEGER :: MPI_ERR
         INTEGER :: MPI_REQ_X(4), MPI_REQ_Y(4)
@@ -527,8 +527,8 @@ contains
     end subroutine iterate
    
     subroutine chkConverge
-        use MPI
         implicit none
+        include "mpif.h"
 
         ! local vars
         integer :: byl, byu, k, j, MPI_ERR

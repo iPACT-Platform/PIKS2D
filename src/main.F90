@@ -22,12 +22,12 @@ PROGRAM main
 USE parameters
 USE flow
 USE MPIParams
-USE MPI ! this is system mpi
 USE solver
 use, intrinsic :: iso_c_binding, only: c_int
 use Fortran_Sleep
 
 IMPLICIT NONE
+include "mpif.h"
 
 ! Local variables
 INTEGER :: MPI_ERR, MPI_PROVIDED

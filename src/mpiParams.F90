@@ -61,8 +61,8 @@ contains
         !Variables to be set
         use physicalGrid, only : xl, xlg, xmax, xmin, xu, xug, &
          yl, ylg, ymax, ymin, yu, yug, ghostLayers, Nx, Ny
-        use MPI
         IMPLICIT NONE
+        include "mpif.h"
         
         !Local variables
         INTEGER :: complete, direction, partial, shift
