@@ -7,13 +7,13 @@ save
 
 ! GH Nc_fundamental = 2
 double precision, parameter, dimension(2) :: xi2 = (/&
-    5.2464762327529035d-01, &
-    1.6506801238857844d+00  &
+     5.2464762327529035d-01, &
+     1.6506801238857844d+00  &
     /)
 
 double precision, parameter, dimension(2) :: wi2 = (/&
-    4.5412414523193151d-01, &
-    4.5875854768068512d-02  &
+     4.5412414523193151d-01, &
+     4.5875854768068512d-02  &
     /) 
 
 ! GH Nc_fundamental = 4
