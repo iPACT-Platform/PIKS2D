@@ -1,0 +1,26 @@
+export PRJ=/home/lhzhu/mpi_dvm
+export RUN=$PRJ/run
+export SRC=$PRJ/src
+# release build generated files (.o, .mod, .exe) 
+export BUILD=$PRJ/build
+# debug build generated files (.o, .mod, .exe) 
+export DEBUG=$PRJ/debug
+# processed data, to be automatically synced to local PC
+export PDATA=$PRJ/pdata
+# config files, e.g., para.in, job.pbs, CMakeLists.othermachine
+export CONF=$PRJ/conf
+# current working case
+export CCASE=carpet # to be changed interatively
+export CRUN=$RUN/$CCASE
+export CPDATA=$PDATA/$CCASE
+# fast cd
+alias run='cd $RUN'
+alias src='cd $SRC'
+alias prj='cd $PRJ'
+alias build='cd $BUILD'
+alias debug='cd $DEBUG'
+alias pdata='cd $PDATA'
+alias conf='cd $CONF'
+# current working case
+alias crun='cd $CRUN'
+alias cpdata='cd $CPDATA'
