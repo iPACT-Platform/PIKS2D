@@ -1,4 +1,5 @@
-export PRJ=/home/lhzhu/mpi_dvm
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+export PRJ=$DIR/..
 export RUN=$PRJ/run
 export SRC=$PRJ/src
 # release build generated files (.o, .mod, .exe) 
@@ -10,7 +11,7 @@ export PDATA=$PRJ/pdata
 # config files, e.g., para.in, job.pbs, CMakeLists.othermachine
 export CONF=$PRJ/conf
 # current working case
-export CCASE=carpet # to be changed interatively
+export CCASE=random_cylinder # to be changed interatively
 export CRUN=$RUN/$CCASE
 export CPDATA=$PDATA/$CCASE
 # fast cd
