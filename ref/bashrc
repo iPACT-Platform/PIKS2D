@@ -1,27 +1,32 @@
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-export PRJ=$DIR/..
-export RUN=$PRJ/run
-export SRC=$PRJ/src
-# release build generated files (.o, .mod, .exe) 
-export BUILD=$PRJ/build
-# debug build generated files (.o, .mod, .exe) 
-export DEBUG=$PRJ/debug
-# processed data, to be automatically synced to local PC
-export PDATA=$PRJ/pdata
-# config files, e.g., para.in, job.pbs, CMakeLists.othermachine
-export CONF=$PRJ/conf
-# current working case
-export CCASE=random_cylinder # to be changed interatively
-export CRUN=$RUN/$CCASE
-export CPDATA=$PDATA/$CCASE
-# fast cd
-alias run='cd $RUN'
-alias src='cd $SRC'
-alias prj='cd $PRJ'
-alias build='cd $BUILD'
-alias debug='cd $DEBUG'
-alias pdata='cd $PDATA'
-alias conf='cd $CONF'
-# current working case
-alias crun='cd $CRUN'
-alias cpdata='cd $CPDATA'
+#!/bin/bash
+if test $# -gt 0; then
+    export CCASE=$1
+    DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+    export PRJ=$DIR/..
+    export RUN=$PRJ/run
+    export SRC=$PRJ/src
+    # release build generated files (.o, .mod, .exe) 
+    export BUILD=$PRJ/build
+    # debug build generated files (.o, .mod, .exe) 
+    export DEBUG=$PRJ/debug
+    # processed data, to be automatically synced to local PC
+    export PDATA=$PRJ/pdata
+    # config files, e.g., para.in, job.pbs, CMakeLists.othermachine
+    export CONF=$PRJ/conf
+    # current working case
+    export CRUN=$RUN/$CCASE
+    export CPDATA=$PDATA/$CCASE
+    # fast cd
+    alias run='cd $RUN'
+    alias src='cd $SRC'
+    alias prj='cd $PRJ'
+    alias build='cd $BUILD'
+    alias debug='cd $DEBUG'
+    alias pdata='cd $PDATA'
+    alias conf='cd $CONF'
+    # current working case
+    alias crun='cd $CRUN'
+    alias cpdata='cd $CPDATA'
+else
+    echo "Usage: source ... ccase"
+fi
