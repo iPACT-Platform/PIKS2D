@@ -13,6 +13,14 @@ character(len=30):: imageFileName
 ! wall extrapolation order, 1, 2, 3(mixed)
 integer :: wallExtOrder
 
+!repetition times of the base image, used only for weak scaling study
+! default values are both 1.
+integer :: block_repx
+integer :: block_repy
+!the based (readed in Nx,Ny) image size,
+! used only for weak scaling study
+integer :: Nx_base, Ny_base
+
 !subdomain bounds
 integer :: xl, xu, yl, yu
 !subdomain with ghostLayers bounds
@@ -78,10 +86,22 @@ contains
         !read digital image
         array2D = 0 
         Open(IMAGEFILE,file=imageFileName,status='OLD')
-            do j=1,Ny
-                read(IMAGEFILE, *) (array2D(i,j), i=1, Nx) !NOTE: add extral layer
+            do j=1,Ny_base
+                read(IMAGEFILE, *) (array2D(i,j), i=1, Nx_base) !NOTE: add extral layer
             enddo
         close(IMAGEFILE)
+
+        ! repeat the base block 
+        do j = 0, block_repy-1
+            do i = 0, block_repx-1
+                do jj = 1, Ny_base
+                    do ii = 1, Nx_base
+                        array2D(i*Nx_base + ii, j*Ny_base + jj) &
+                            = array2D(ii, jj)
+                    enddo
+                enddo
+            enddo
+        enddo
 
         ! set array2g
         array2Dg = ghost ! outer bound
@@ -151,7 +171,6 @@ contains
 
         ! set wall points type based on sournding point type(f/s)
         nWall=0 ! count the wall points, only in the l, u range are counted!
-        !print*, bxl, bxu, byl, byu
         Do j=byl,byu
             Do i=bxl,bxu
                 !ii = i-xl+1
