@@ -1,4 +1,9 @@
 #!/bin/bash
+sc ()
+{
+    source $PRJ/ref/bashrc $1
+}
+
 if test $# -gt 0; then
     export CCASE=$1
     DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
