@@ -38,7 +38,7 @@ implicit none
 
 double precision, parameter :: accom=1.d0 ! accommodation coefficient
 double precision, parameter :: porosity=0.75d0
-double precision, parameter :: eps=1.d-10
+double precision, parameter :: eps=1.d-8
 double precision :: real_porosity
 !=======================================================================
 !       Constant and indexed, temporary variables
@@ -57,8 +57,10 @@ logical :: fileexist
 !integer, parameter :: Nx=100
 !integer, parameter :: Ny=856
 !integer, parameter :: Nx=1066
-integer, parameter :: Ny=540
-integer, parameter :: Nx=540
+!integer, parameter :: Ny=540
+!integer, parameter :: Nx=540
+integer, parameter :: Ny=1500
+integer, parameter :: Nx=3000
 
 integer, Dimension (Nx,Ny) ::array2D
 integer, parameter :: ghostLayer=2 !number of ghost layer at each boundary
@@ -93,10 +95,10 @@ double precision :: ds = 0.5d0/(Ny-1) !uniform grid spacing in physical space
 double precision :: Kn,mass,mass2,permeability
 double precision :: DiffFlux, error, fEq, mu
 
-integer, parameter :: nKn= 4!28 number of Kn case
+integer, parameter :: nKn= 2!28 number of Kn case
 !integer, parameter :: nKn=6! number of Kn case
 integer :: iKn
-double precision, parameter, DIMENSION(1:nKn):: seriesKn=(/1.0d-1,1.0d-2,1.0d-3,1.0d-4/)
+double precision, parameter, DIMENSION(1:nKn):: seriesKn=(/1.0d-2,1.0d-3/)
 !=======================================================================
 !       Molecular velocity space configurations
 !=======================================================================
@@ -151,6 +153,31 @@ weight1D(1) = 0.3253029997569190434524823d0/dsqrt(PI)    !fundamental weighting
 weight1D(2) = 0.4211071018520621717673978d0/dsqrt(PI)
 weight1D(3) = 0.1334425003575195221024846d0/dsqrt(PI)
 weight1D(4) = 0.6374323486257276326719009d-2/dsqrt(PI)
+
+!xi(1) = 0.2988970076966438479867110d-1         !fundamental abscissae
+!xi(2) = 0.1542048782658252458689598d0
+!xi(3) = 0.3661439629743124128505581d0
+!xi(4) = 0.6508810158452045698433866d0
+!xi(5) = 0.9943668698807920236508182d0
+!xi(6) = 0.1385891203649564710375667d1
+!xi(7) = 0.1818848608428231862938024d1
+!xi(8) = 0.2290842738672854590577935d1
+!xi(9) = 0.2804096793393623543864289d1
+!xi(10) = 0.3367270704162926571598781d1
+!xi(11) = 0.4001683475673481515762700d1
+!xi(12) = 0.4768216287989857542584755d1
+!weight1D(1) = 0.7624614679304308952099828d-1 /dsqrt(PI)   !fundamental weighting
+!weight1D(2) = 0.1664460688794737789095350d0 /dsqrt(PI)
+!weight1D(3) = 0.2193948981287073749784118d0 /dsqrt(PI)
+!weight1D(4) = 0.2070165086790944148274958d0 /dsqrt(PI)
+!weight1D(5) = 0.1372643627964736001322662d0 /dsqrt(PI)
+!weight1D(6) = 0.6050567434891642765999529d-1 /dsqrt(PI)
+!weight1D(7) = 0.1655380195640749622845615d-1/dsqrt(PI)
+!weight1D(8) = 0.2586083788356672791441551d-2 /dsqrt(PI)
+!weight1D(9) = 0.2062375410674887187199220d-3/dsqrt(PI)
+!weight1D(10) = 0.7066509867527055212244056d-5 /dsqrt(PI)
+!weight1D(11) = 0.7591315472565977916203208d-7 /dsqrt(PI)
+!weight1D(12) = 0.1181954171667722745733055d-9 /dsqrt(PI)
 
 
 !------------------------------------------------------------------------
@@ -223,7 +250,7 @@ End if
 !Open(200,file='Processed_2D_Tomography.dat',status='OLD')
 !Open(200,file='Processed_2D_Berea.dat',status='OLD')
 !Open(200,file='Processed_2x_2D_Berea.dat',status='OLD')
-Open(200,file='carpetL3.dat',status='OLD')
+Open(200,file='cylinders.dat',status='OLD')
 !Open(200,file='cylinder.dat',status='OLD')
     Do j=1,Ny
         read(200, *) (array2D(i,j), i=1,Nx)
@@ -590,6 +617,17 @@ End do
             write(10,*) l, cx(l), cy(l), w(l), oppositeX(l), oppositeY(l)
         Enddo
     close(10)   
+
+Do iKn=1,nKn
+!Do iKn=10,10
+
+Kn=seriesKn(iKn)
+write(*,*) 'Kn = ', Kn
+mu=dsqrt(PI)/2.0d0/Kn 
+error=1.d0
+mass=1.d0
+iteration1=0
+
 !=======================================================================
 !       Initial condition
 !=======================================================================
@@ -610,16 +648,6 @@ Rho=0.d0 ! For linearised fomula
 !RhoWallY=Rho
 Ux=0.d0
 Uy=0.d0
-
-Do iKn=1,nKn
-!Do iKn=10,10
-
-Kn=seriesKn(iKn)
-write(*,*) 'Kn = ', Kn
-mu=dsqrt(PI)/2.0d0/Kn 
-error=1.d0
-mass=1.d0
-iteration1=0
 
 
 !***********************************************************************
