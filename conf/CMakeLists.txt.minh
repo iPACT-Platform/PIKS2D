@@ -1,0 +1,41 @@
+# To use on Minh-Than machine
+# Option use: GNU compiling toolset
+# $ module unload compilers/intel/2017_3
+# $ module load MPI/gcc/openmpi/2.1.0
+# Option 2, use Intel compiling toolset
+# $ module load MPI/intel/impi/2017_3
+# $ export FC=mpiifort
+
+cmake_minimum_required(VERSION 2.8)
+
+project(mpi_dvm)
+enable_language(Fortran)
+
+#set(CMAKE_BUILD_TYPE Release)
+
+if(CMAKE_Fortran_COMPILER_ID MATCHES "GNU")
+    set(dialect "-ffree-form -fimplicit-none -O2")
+    set(bounds "-fbounds-check -ftracdback -Wall")
+endif()
+if(CMAKE_Fortran_COMPILER_ID MATCHES "Intel")
+    set(dialect " -free -implicitnone -O3")
+    set(bounds "-g -check all -traceback")
+endif()
+
+option(ENABLE_OPENMP "Enable OpenMP" ON)
+if(ENABLE_OPENMP)
+    find_package(OpenMP) 
+    set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${OpenMP_Fortran_FLAGS}") 
+endif()
+             
+find_package(MPI) 
+set(CMAKE_Fortran_COMPILE_FLAGS "${CMAKE_Fortran_COMPILE_FLAGS} ${MPI_Fortran_COMPILE_FLAGS}")
+set(CMAKE_Fortran_LINK_FLAGS "${CMAKE_Fortran_LINK_FLAGS} ${MPI_Fortran_LINK_FLAGS}")
+include_directories(SYSTEM ${MPI_Fortran_INCLUDE_PATH})
+
+set(CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG} ${bounds}")
+set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${dialect}")
+
+file(GLOB_RECURSE sources  src/*.F90)
+add_executable(dvm.x ${sources})
+target_link_libraries(dvm.x ${MPI_Fortran_LIBRARIES})
