@@ -36,16 +36,16 @@ contains
 
         mass = 1.d0
 
-        ! Buffer for exchange data only half domain of the velocity
-        allocate( f1_west_snd(Nc/2*Nytotal*ghostLayers) ) 
-        allocate( f1_west_rcv(Nc/2*Nytotal*ghostLayers) ) 
-        allocate( f1_east_snd(Nc/2*Nytotal*ghostLayers) ) 
-        allocate( f1_east_rcv(Nc/2*Nytotal*ghostLayers) ) 
+        ! Buffer for exchange data of flull domain of the velocity
+        allocate( f1_west_snd(Nc*Nytotal*ghostLayers) ) 
+        allocate( f1_west_rcv(Nc*Nytotal*ghostLayers) ) 
+        allocate( f1_east_snd(Nc*Nytotal*ghostLayers) ) 
+        allocate( f1_east_rcv(Nc*Nytotal*ghostLayers) ) 
 
-        allocate( f1_north_snd(Nc/2*Nxtotal*ghostLayers) ) 
-        allocate( f1_north_rcv(Nc/2*Nxtotal*ghostLayers) )
-        allocate( f1_south_snd(Nc/2*Nxtotal*ghostLayers) ) 
-        allocate( f1_south_rcv(Nc/2*Nxtotal*ghostLayers) )
+        allocate( f1_north_snd(Nc*Nxtotal*ghostLayers) ) 
+        allocate( f1_north_rcv(Nc*Nxtotal*ghostLayers) )
+        allocate( f1_south_snd(Nc*Nxtotal*ghostLayers) ) 
+        allocate( f1_south_rcv(Nc*Nxtotal*ghostLayers) )
 
         ! Allways initialize allocated arrays
         f1_west_rcv = 0.d0

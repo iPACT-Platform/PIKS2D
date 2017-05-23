@@ -27,8 +27,8 @@ contains
         integer :: xsize, ysize
         double precision :: feq, RhoWall
 
-        xsize = Nytotal*Nc/2*ghostLayers
-        ysize = Nxtotal*Nc/2*ghostLayers
+        xsize = Nytotal*Nc*ghostLayers
+        ysize = Nxtotal*Nc*ghostLayers
 
         MPI_REQ_X = MPI_REQUEST_NULL
         MPI_REQ_Y = MPI_REQUEST_NULL
@@ -180,23 +180,16 @@ contains
 !$OMP DO 
         do j = 1, Nytotal
             do i = 1, ghostLayers
-                do l = Nc/4+1, Nc*3/4 ! dir 2 and 3
-                    f1_west_snd((j-1)*ghostLayers*Nc/2 + (i-1)*Nc/2 + l-Nc/4) &
+                do l = 1, Nc ! dir 1, 2, 3 and 4
+                    f1_west_snd((j-1)*ghostLayers*Nc + (i-1)*Nc + l) &
                     &  = f1((j-1)*Nxtotal + i+ghostLayers, l)
                     f1((j-1)*Nxtotal + i+Nxsub+ghostLayers, l) = &
-                    &   f1_east_rcv((j-1)*ghostLayers*Nc/2 + (i-1)*Nc/2 + l-Nc/4)
-                enddo
-                do l = 1, Nc/4      !dir 1
-                    f1_east_snd((j-1)*ghostLayers*Nc/2 + (i-1)*Nc/2 + l) &
+                    &   f1_east_rcv((j-1)*ghostLayers*Nc + (i-1)*Nc + l)
+
+                    f1_east_snd((j-1)*ghostLayers*Nc + (i-1)*Nc + l) &
                     &  = f1((j-1)*Nxtotal + i+Nxsub, l)
                     f1((j-1)*Nxtotal + i, l) = &
-                    &   f1_west_rcv((j-1)*ghostLayers*Nc/2 + (i-1)*Nc/2 + l)                   
-                enddo
-                do l = Nc*3/4+1, Nc ! dir 4
-                    f1_east_snd((j-1)*ghostLayers*Nc/2 + (i-1)*Nc/2 + l-Nc/2) &
-                    &  = f1((j-1)*Nxtotal + i+Nxsub, l)
-                    f1((j-1)*Nxtotal + i, l) = &
-                    &   f1_west_rcv((j-1)*ghostLayers*Nc/2 + (i-1)*Nc/2 + l-Nc/2)                   
+                    &   f1_west_rcv((j-1)*ghostLayers*Nc + (i-1)*Nc + l)                   
                 enddo
             enddo
         enddo
@@ -206,17 +199,15 @@ contains
         ! pack&unpack south&north buffer
         do j = 1, ghostLayers
             do i = 1, Nxtotal
-                do l = 1, Nc/2 ! dir 1, 2
-                    f1_north_snd((j-1)*Nxtotal*Nc/2 + (i-1)*Nc/2 + l) &
+                do l = 1, Nc ! dir 1, 2, 3 and 4
+                    f1_north_snd((j-1)*Nxtotal*Nc + (i-1)*Nc + l) &
                     &  = f1((Nysub+j-1)*Nxtotal + i, l)
                     f1((j-1)*Nxtotal + i, l) = &
-                    &   f1_south_rcv((j-1)*Nxtotal*Nc/2 + (i-1)*Nc/2 + l)
-                enddo
-                do l = Nc/2+1, Nc ! dir 3, 4
-                    f1_south_snd((j-1)*Nxtotal*Nc/2 + (i-1)*Nc/2 + l-Nc/2) &
+                    &   f1_south_rcv((j-1)*Nxtotal*Nc + (i-1)*Nc + l)
+                    f1_south_snd((j-1)*Nxtotal*Nc + (i-1)*Nc + l) &
                     &  = f1((j-1+ghostLayers)*Nxtotal + i, l)
                     f1((Nysub+ghostLayers+j-1)*Nxtotal + i,l) = &
-                    &   f1_north_rcv((j-1)*Nxtotal*Nc/2 + (i-1)*Nc/2 + l-Nc/2)
+                    &   f1_north_rcv((j-1)*Nxtotal*Nc + (i-1)*Nc + l)
                 enddo
             enddo
         enddo
