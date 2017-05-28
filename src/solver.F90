@@ -158,7 +158,7 @@ contains
                 !& )/(cx(l)*coefIV(i,1)+cy(l)*coefIV(i,4))  
             End do
         End do
-!$OMP END DO NOWAIT
+!$OMP END DO
 
         ! Wait until send and recv done
 !$OMP SINGLE
