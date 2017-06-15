@@ -41,6 +41,9 @@ contains
                 case(4)
                     xi = xi4
                     weight1D = wi4
+                case(6)
+                    xi = xi6
+                    weight1D = wi6
                 case(8)
                     xi = xi8
                     weight1D = wi8
@@ -64,6 +67,9 @@ contains
                 case(4)
                     xi = hxi4
                     weight1D = hwi4
+                case(6)
+                    xi = hxi6
+                    weight1D = hwi6
                 case(8)
                     xi = hxi8
                     weight1D = hwi8
