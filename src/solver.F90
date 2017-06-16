@@ -35,7 +35,7 @@ contains
 
 !$OMP PARALLEL &
 !$OMP DEFAULT(SHARED) &
-!$OMP PRIVATE(l, i, k, fEq, RhoWall)
+!$OMP PRIVATE(l, i, j, k, fEq, RhoWall)
 
         ! Start Recieving
 !$OMP SINGLE
@@ -59,7 +59,7 @@ contains
                         MPI_COMM_VGRID, MPI_REQ_Y(4), MPI_ERR )       
 !$OMP END SINGLE NOWAIT
 
-!$OMP DO SCHEDULE(STATIC)
+!$OMP DO SCHEDULE(RUNTIME)
         ! sweep direction 1
         Do l=1,Nc/4
             Do i=1,Nstencil1
@@ -82,7 +82,7 @@ contains
         End do
 !$OMP END DO NOWAIT
 
-!$OMP DO SCHEDULE(STATIC) 
+!$OMP DO SCHEDULE(RUNTIME)
         ! sweep direction 2
         Do l=Nc/4+1,Nc/2
             Do i=1,Nstencil2
@@ -108,7 +108,7 @@ contains
         End do
 !$OMP END DO NOWAIT
 
-!$OMP DO SCHEDULE(STATIC) 
+!$OMP DO SCHEDULE(RUNTIME)
         ! sweep direction 3
         Do l=Nc/2+1,Nc*3/4
             Do i=1,Nstencil3
@@ -134,7 +134,7 @@ contains
         End do
 !$OMP END DO NOWAIT
 
-!$OMP DO SCHEDULE(STATIC) 
+!$OMP DO SCHEDULE(RUNTIME)
         ! sweep direction 4
         Do l=Nc*3/4+1,Nc
             Do i=1,Nstencil4
@@ -158,7 +158,7 @@ contains
                 !& )/(cx(l)*coefIV(i,1)+cy(l)*coefIV(i,4))  
             End do
         End do
-!$OMP END DO
+!$OMP END DO 
 
         ! Wait until send and recv done
 !$OMP SINGLE
@@ -166,18 +166,10 @@ contains
         CALL MPI_WAITALL(4, MPI_REQ_Y, MPI_STAT, MPI_ERR)
 !$OMP END SINGLE 
 
-!!$OMP SINGLE
-        ! pack&unpack west&east buffer
-        !shiftll = 0
-        !shiftuu = 0
-        !if(xl==xmin) shiftll = ghostLayers
-        !if(xu==xmax) shiftuu = ghostLayers
-!!$OMP END SINGLE
-
 !-------------------------------------------------------------------
 !> Pack/unpack boundary data
 !-------------------------------------------------------------------
-!$OMP DO 
+!$OMP DO
         do j = 1, Nytotal
             do i = 1, ghostLayers
                 do l = 1, Nc ! dir 1, 2, 3 and 4
@@ -193,9 +185,9 @@ contains
                 enddo
             enddo
         enddo
-!$OMP END DO
+!$OMP END DO NOWAIT
 
-!$OMP DO         
+!$OMP DO
         ! pack&unpack south&north buffer
         do j = 1, ghostLayers
             do i = 1, Nxtotal
@@ -217,7 +209,7 @@ contains
 !-------------------------------------------------------------------
 !> Processing wall nodes
 !-------------------------------------------------------------------
-!$OMP DO SCHEDULE(STATIC)
+!$OMP DO SCHEDULE(RUNTIME)
         Do i=1,nWall
             k=vecWall(i)
             RhoWall=0.d0
@@ -433,7 +425,7 @@ contains
                     Enddo                               
             END SELECT
         End do
-!$OMP END DO  
+!$OMP END DO  NOWAIT
 
 
 !--------------------------------------------------------
@@ -454,7 +446,7 @@ contains
                     f1(k,l)=f1(k-1,l)+w(l)*PressDrop ! NOTE, for NprocX=1
                 Enddo
             End do
-!$OMP END DO
+!$OMP END DO NOWAIT
         endif
 
         if(xu==xmax) then ! outlet block (east most processor)
@@ -468,7 +460,7 @@ contains
                     f1(k,l)=f1(k+1,l)-w(l)*PressDrop ! NOTE, for NprocX=1
                 Enddo
             Enddo
-!$OMP END DO            
+!$OMP END DO
         endif
 
 !----------------------------------------------------
@@ -482,7 +474,7 @@ contains
                      f1(k,l)=f1(k,oppositeY(l))
                 End do
             enddo
-!$OMP END DO 
+!$OMP END DO NOWAIT 
         endif
         if(yu==ymax) then ! north
 !$OMP DO
