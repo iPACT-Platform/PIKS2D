@@ -60,7 +60,7 @@ contains
     subroutine setupVirtualProcessGrid    
         !Variables to be set
         use physicalGrid, only : xl, xlg, xmax, xmin, xu, xug, &
-         yl, ylg, ymax, ymin, yu, yug, ghostLayers, Nx, Ny
+         yl, ylg, ymax, ymin, yu, yug, ghostLayers, Nx, Ny, peid
         IMPLICIT NONE
         include "mpif.h"
         
@@ -87,6 +87,9 @@ contains
         !Get this processor ID within the virtual grid
         CALL MPI_COMM_RANK(MPI_COMM_VGRID, vproc, MPI_ERR)
         !write(*,*) "vproc = ",  vproc
+
+        !DEBUG
+        peid=vproc
 
         CALL MPI_CART_COORDS(MPI_COMM_VGRID, vproc, mpi_dim, mpi_coords, MPI_ERR)
         !PRINT*, "After first mpi_cart_coords", proc

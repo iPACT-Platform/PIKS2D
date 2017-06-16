@@ -51,6 +51,9 @@ double precision :: real_porosity
 ! number of wall points
 integer :: nWall 
 
+! PROC ID
+integer :: peid
+
 integer, DIMENSION(:), ALLOCATABLE :: vecWall
 integer, DIMENSION(:), ALLOCATABLE :: dir1, dir2, dir3, dir4 ! dir1(i) is the ith 
 double precision, DIMENSION(:,:), ALLOCATABLE :: coefI, coefII, coefIII, coefIV
@@ -359,6 +362,8 @@ contains
                 End if
             End do
         End do
+        !DEBUG
+        print*, "Proc ", peid, "Nstencil1 = ", Nstencil1
         !set the icount'th fluid node's localid in the 2D patch
         allocate(dir1(Nstencil1))
         icount=0

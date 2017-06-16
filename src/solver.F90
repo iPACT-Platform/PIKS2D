@@ -492,10 +492,10 @@ contains
         !----------------------------------------------------
 !$OMP DO
         Do k=1,Ntotal
-            Rho(k)=0.d0
-            Ux(k)=0.d0
-            Uy(k)=0.d0
             if(image(k) .ne. solid) then
+                Rho(k)=0.d0
+                Ux(k)=0.d0
+                Uy(k)=0.d0
                 Do l=1,Nc
                     Rho(k)=Rho(k)+f1(k,l)
                     Ux(k)=Ux(k)+cx(l)*f1(k,l)
