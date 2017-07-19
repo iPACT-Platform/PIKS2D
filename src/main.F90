@@ -55,6 +55,8 @@ CALL setupVirtualProcessGrid
 CALL setupPhysicalGrid
 ! allocate flow data array and initialize
 CALL setupFlow
+! save nodeCounts, switch off here
+!call saveNodeCounts
 
 ! wait for debuger to attcah
 !sleep = FortSleep(20)

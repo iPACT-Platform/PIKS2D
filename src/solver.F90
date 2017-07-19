@@ -585,6 +585,47 @@ contains
         close(20)
     end subroutine saveFlowField
 
+    subroutine saveNodeCounts
+        implicit none
+        include "mpif.h"
+        ! array holds fluid node counts and total node counts in each subdomain
+        integer, dimension(:), allocatable :: fluidNodeCountAll, totalNodeCountAll
+        integer :: fluidNodeCount, totalNodeCount
+        integer :: MPI_ERR, IO_ERR, i, j, localid
+
+        allocate(fluidNodeCountAll(nprocs))
+        allocate(totalNodeCountAll(nprocs))
+
+        totalNodeCount = Nxsub*Nysub
+        fluidNodeCount = 0
+
+        do j=yl,yu
+            do i=xl,xu
+                localid = (j-ylg)*Nxtotal + i-xlg+1
+                if(image(localid) == fluid) then
+                    fluidNodeCount = fluidNodeCount + 1
+                endif
+            enddo
+        enddo
+
+        ! do MPI gather put fluidNodeCount to fluidNodeCountAll
+        call MPI_GATHER(totalNodeCount, 1, MPI_INTEGER, totalNodeCountAll, 1, &
+            MPI_INTEGER, master, MPI_COMM_VGRID, MPI_ERR)
+        call MPI_GATHER(fluidNodeCount, 1, MPI_INTEGER, fluidNodeCountAll, 1, &
+            MPI_INTEGER, master, MPI_COMM_VGRID, MPI_ERR)
+        ! master process write to file
+        if(proc == master) then
+            open(unit=15, file="nodeCounts", status="replace", IOSTAT=IO_ERR)
+            write(15,'(A)') "totalNodeCount fluidNodeCount localPorosity"
+            do i=1,nprocs
+                write(15,'(2I12, ES15.6)') &
+                    totalNodeCountAll(i), fluidNodeCountAll(i), &
+                    dble(fluidNodeCountAll(i))/dble(totalNodeCountAll(i))
+            enddo
+            close(unit=15)
+        endif
+    end subroutine saveNodeCounts
+
     subroutine memFree
         deallocate (array2D)
         deallocate (image)
