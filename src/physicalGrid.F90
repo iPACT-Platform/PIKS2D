@@ -48,6 +48,9 @@ integer :: Nstencil1, Nstencil2, Nstencil3, Nstencil4
 double precision :: RhoWall
 double precision :: real_porosity
 
+integer :: Nfluid
+integer, allocatable, dimension(:) :: mapF
+
 ! number of wall points
 integer :: nWall 
 
@@ -341,6 +344,29 @@ contains
         else if (wallExtOrder /= 3) then
             PRINT*, "Error: wallExtOrder wroond shoud be [1|2|3]"
         endif
+
+        ! count num of non-solid points
+        Nfluid=0
+        Do j=yl,yu
+            Do i=xl,xu
+                localid = (j-ylg)*Nxtotal + i-xlg+1
+                If (image(localid) == fluid) then
+                    Nfluid=Nfluid+1
+                End if
+            End do
+        End do
+        allocate(mapF(Nfluid))
+
+        Nfluid=0
+        Do j=yl,yu
+            Do i=xl,xu
+                localid = (j-ylg)*Nxtotal + i-xlg+1
+                If (image(localid) == fluid) then
+                    Nfluid=Nfluid+1
+                    mapF(Nfluid) = localid
+                End if
+            End do
+        End do
 
         !Direction 1
         !bound

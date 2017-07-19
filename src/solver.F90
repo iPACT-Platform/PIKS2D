@@ -491,17 +491,16 @@ contains
         !> Update Macro
         !----------------------------------------------------
 !$OMP DO
-        Do k=1,Ntotal
-            if(image(k) .ne. solid) then
-                Rho(k)=0.d0
-                Ux(k)=0.d0
-                Uy(k)=0.d0
-                Do l=1,Nc
-                    Rho(k)=Rho(k)+f1(k,l)
-                    Ux(k)=Ux(k)+cx(l)*f1(k,l)
-                    Uy(k)=Uy(k)+cy(l)*f1(k,l)
-                End do
-            endif
+        Do i=1,Nfluid
+            k = mapF(i)
+            Rho(k)=0.d0
+            Ux(k)=0.d0
+            Uy(k)=0.d0
+            Do l=1,Nc
+                Rho(k)=Rho(k)+f1(k,l)
+                Ux(k)=Ux(k)+cx(l)*f1(k,l)
+                Uy(k)=Uy(k)+cy(l)*f1(k,l)
+            End do
         End do
 !$OMP END DO
 
