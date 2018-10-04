@@ -9,7 +9,7 @@ implicit none
 namelist /physicalNml/ imageFileName, Nx, Ny, wallExtOrder
 namelist /velocityNml/ Nc_fundamental, halfRange
 namelist /mpiNml/ mpi_xdim, mpi_ydim, block_repx, block_repy
-namelist /solverNml/ maxStep, chkConvergeStep, saveStep, eps
+namelist /solverNml/ maxStep, chkConvergeStep, saveStep, eps, saveFormat
 namelist /flowNml/ Kn, pressDrop, accom
 ! file units
 integer, parameter :: PARAFILE = 10
@@ -21,6 +21,7 @@ contains
         ! set default nml variables
         block_repx = 1
         block_repy = 1
+        saveFormat = 1 ! default saving format is vti
 
         ! read file called "para.in" using namelist of Fortran 90
         open(unit=PARAFILE,file='para.in',status='old',iostat=ios)
@@ -68,6 +69,7 @@ contains
         print*, "chkConvergeStep = ", chkConvergeStep
         print*, "saveStep = ", saveStep
         print*, "eps = ", eps
+        print*, "saveFormat = ", saveFormat
         print*, "Kn = ", Kn
         print*, "pressDrop = ", pressDrop
         print*, "accom = ", accom

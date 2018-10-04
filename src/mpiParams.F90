@@ -38,6 +38,9 @@ INTEGER :: mpi_group_inlet
 INTEGER :: mpi_group_global
 INTEGER :: mpi_comm_inlet
 INTEGER, allocatable, dimension(:) :: inlet_rank
+
+integer, allocatable, dimension(:,:) :: sub_ext
+
 contains
 !-------------------------------------------------------------------------------
 ! Subroutine : setupVirtualProcessGrid
@@ -71,6 +74,7 @@ contains
         LOGICAL, DIMENSION(1:mpi_dim) :: periodic
         LOGICAL :: reorder
         INTEGER :: j
+        integer, dimension(4) :: my_ext
         
         !Initialize data for domain partitioning. Defaults are:
         !Partitioning is periodic in all dimensions (periodic = .true.)
@@ -129,6 +133,14 @@ contains
         xug = xu + ghostLayers
         ylg = yl - ghostLayers
         yug = yu + ghostLayers
+
+        my_ext(1) = xl
+        my_ext(2) = xu
+        my_ext(3) = yl
+        my_ext(4) = yu
+
+        allocate(sub_ext(4,nprocs))
+        CALL MPI_GATHER(my_ext, 4, MPI_INT, sub_ext, 4, MPI_INT, master, MPI_COMM_WORLD, MPI_ERR)
 
         !------- Determine neighbours of this processor -------------------------------
         !MPI_CART counts dimensions using 0-based arithmetic so that

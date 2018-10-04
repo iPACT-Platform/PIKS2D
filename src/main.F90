@@ -71,7 +71,16 @@ DO iStep = 1, maxStep
     CALL iterate
     ! if(proc==master) PRINT*, "STEP: ", iStep
     IF ( MOD(iStep,chkConvergeStep) == 0 ) CALL chkConverge
-    IF ( MOD(iStep,saveStep) == 0 ) CALL saveFlowField
+    if ( MOD(iStep,saveStep) == 0 )  then
+        SELECT CASE (saveFormat)
+            CASE (1)
+                call saveFlowFieldVTI
+            CASE (2)
+                call saveFlowField
+            CASE (3)
+                call saveFlowFieldVTK
+        END SELECT
+    endif
     IF ( error <= eps ) then
         EXIT
     ENDIF
@@ -83,7 +92,14 @@ if(proc==master) then
 endif
 
 ! Save final data
-CALL saveFlowField
+SELECT CASE (saveFormat)
+    CASE (1)
+        call saveFlowFieldVTI
+    CASE (2)
+        call saveFlowField
+    CASE (3)
+        call saveFlowFieldVTK
+END SELECT
 
 ! Free memory, close MPI environment and end program
 CALL memFree

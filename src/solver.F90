@@ -11,6 +11,7 @@ double precision :: eps
 integer :: maxStep
 integer :: chkConvergeStep
 integer :: saveStep
+integer :: saveFormat ! 1 (default) for vti, 2 for tecplot, 3 for vtk
 
 integer :: iStep
 double precision :: error
@@ -584,6 +585,188 @@ contains
         Enddo
         close(20)
     end subroutine saveFlowField
+
+    SUBROUTINE saveFlowFieldVTK
+        IMPLICIT NONE
+        INTEGER :: i, j, k, l, MPI_ERR, IO_ERR
+        character(13) fname
+        INTEGER :: zl = 1
+        INTEGER :: zu = 1
+        INTEGER :: Nzsub = 1
+
+        write(fname, '(A, I0.3, A)') 'Field_', proc, '.vtk'
+        OPEN(UNIT = 12, FILE = fname, STATUS = "REPLACE", POSITION = "APPEND", &
+          IOSTAT = IO_ERR)
+        IF ( IO_ERR == 0 ) THEN
+             WRITE(12,'(A)')"# vtk DataFile Version 2.0"
+             WRITE(12,'(A)')"DVM MPI"
+             WRITE(12,'(A)')"ASCII"
+             WRITE(12,*)
+             WRITE(12,'(A)')"DATASET STRUCTURED_POINTS"
+             WRITE(12,*)"DIMENSIONS",Nxsub,Nysub,Nzsub
+             WRITE(12,*)"ORIGIN",xl,yl,zl
+             WRITE(12,*)"SPACING",1,1,1
+             WRITE(12,*)
+             WRITE(12,*)"POINT_DATA",Nxsub*Nysub*Nzsub
+             WRITE(12,*)
+             WRITE(12,'(A)')"SCALARS Rho double"
+             WRITE(12,'(A)')"LOOKUP_TABLE default"
+             DO j = yl, yu
+                 DO i = xl, xu
+                     l= (j-ylg)*Nxtotal + i-xlg+1
+                     if (image(l)==fluid) then
+                         write(12,'(ES15.6)') Rho(l)+1.d0
+                     else
+                         write(12,'(ES15.6)') 0.d0
+                     endif   
+                 END DO
+             END DO
+             WRITE(12,*)
+             WRITE(12,'(A)')"VECTORS Velocity double"
+             DO j = yl, yu
+                 DO i = xl, xu
+                     l= (j-ylg)*Nxtotal + i-xlg+1
+                     if (image(l)==fluid) then
+                         write(12,'(3ES15.6)') Ux(l), Uy(l), 0.d0
+                     else
+                         write(12,'(3ES15.6)') 0.d0, 0.d0, 0.d0
+                     endif  
+                 END DO
+            END DO
+            CLOSE(UNIT = 12)
+        ELSE
+            CALL memFree
+            CALL MPI_FINALIZE(MPI_ERR)
+            STOP "Error: Unable to open output vtk file."
+        END IF
+
+        RETURN
+    END SUBROUTINE saveFlowFieldVTK
+
+    SUBROUTINE saveFlowFieldVTI
+        integer :: i, j, k, l, MPI_ERR, IO_ERR
+        character(13) fname
+        character(10) pfname
+        integer :: exl, exu, eyl, eyu, ezl, ezu
+        integer :: wexl, wexu, weyl, weyu, wezl, wezu
+        integer :: zl, zu, zmin, zmax
+
+        zl = 1
+        zu = 1
+        zmin = 1
+        zmax = 1
+        ! whole extend
+        wexl = xmin - 1
+        wexu = xmax
+        weyl = ymin - 1
+        weyu = ymax
+        wezl = zmin - 1
+        wezu = zmax
+        ! local extend
+        exl = xl - 1
+        exu = xu
+        eyl = yl - 1
+        eyu = yu
+        ezl = zl - 1
+        ezu = zu
+
+        write(fname, '(A, I0.3, A)') 'Field_', proc, '.vti'
+        OPEN(UNIT = 13, FILE = fname, STATUS = "REPLACE", POSITION = "APPEND", &
+          IOSTAT = IO_ERR)
+        IF ( IO_ERR == 0 ) THEN
+            WRITE(13,'(A)') '<?xml version="1.0"?>'
+            WRITE(13,'(A)') '<VTKFile type="ImageData">'
+            WRITE(13,'(A, 6I4, A)') '<ImageData WholeExtent="', exl, exu, & 
+                eyl, eyu, ezl, ezu, ' " Origin="0 0 0" Spacing="1 1 1">'
+            WRITE(13, '(A, 6I4, A)') '<Piece Extent="', exl, exu, eyl, eyu, &
+                ezl, ezu, '">'
+            WRITE(13, '(A)') '<CellData Scalars="flag Rho" Vectors ="U">'
+            WRITE(13, '(A)') '<DataArray type="Int32" Name="flag" format="ascii">'
+
+            DO j = yl, yu
+                DO i = xl, xu
+                    l= (j-ylg)*Nxtotal + i-xlg+1
+                    if (image(l)==fluid) then
+                        write(13, '(1I4)') 0 ! fluid flag = 0
+                    else
+                        write(13, '(1I4)') 1
+                    endif
+                END DO
+            END DO
+
+            WRITE(13, '(A)') '</DataArray>'
+            WRITE(13, '(A)') '<DataArray type="Float32" Name="Rho" format="ascii">'
+            DO j = yl, yu
+                DO i = xl, xu
+                    l= (j-ylg)*Nxtotal + i-xlg+1
+                    If (image(l)==fluid) then
+                        write(13,'(ES15.6)') Rho(l)+1.d0
+                    else
+                        write(13,'(ES15.6)') 0.d0
+                    Endif   
+                END DO
+            END DO
+            WRITE(13, '(A)') '</DataArray>'
+
+            WRITE(13, '(A)') '<DataArray type="Float32" Name="U" format="ascii" &
+                & NumberOfComponents="3">'
+            DO j = yl, yu
+               DO i = xl, xu
+                  l= (j-ylg)*Nxtotal + i-xlg+1
+                  If (image(l)==fluid) then
+                      write(13,'(3ES15.6)') Ux(l), Uy(l), 0.d0
+                  else
+                      write(13,'(3ES15.6)') 0.d0, 0.d0, 0.d0
+                  Endif  
+               END DO
+            END DO
+            WRITE(13, '(A)') '</DataArray>'
+            WRITE(13, '(A)') '</CellData>'
+            WRITE(13, '(A)') '</Piece>'
+            WRITE(13, '(A)') '</ImageData>'
+            WRITE(13, '(A)') '</VTKFile>'
+
+            CLOSE(UNIT = 13)
+        ELSE
+            CALL memFree
+            CALL MPI_FINALIZE(MPI_ERR)
+            STOP "Error: Unable to open output vti file."
+        END IF
+
+
+        if (proc == master) then  
+            write(pfname, '(A)') 'Field.pvti'
+            OPEN(UNIT = 14, FILE = pfname, STATUS = "REPLACE", POSITION = "APPEND", &
+              IOSTAT = IO_ERR)
+            WRITE(14,'(A)') '<?xml version="1.0"?>'
+            WRITE(14,'(A)') '<VTKFile type="PImageData">'
+            WRITE(14,'(A, 6I4, A)') '<PImageData WholeExtent="', wexl, wexu, & 
+                weyl, weyu, wezl, wezu, ' " Origin="0 0 0" Spacing="1 1 1">'
+            WRITE(14,'(A)') '<PCellData Scalars="flag Rho" Vectors ="U">'
+            WRITE(14, '(A)') '<DataArray type="Int32" Name="flag" format="ascii"/>'
+            WRITE(14, '(A)') '<DataArray type="Float32" Name="Rho" format="ascii"/>'
+            WRITE(14, '(A)') '<DataArray type="Float32" Name="U" format="ascii" &
+                & NumberOfComponents="3"/>'
+            WRITE(14, '(A)') '</PCellData>'
+            ! the master process has recorded the extend of the subdomain in sub_ext
+            do l=1, nprocs
+                exl = sub_ext(1,l) - 1
+                exu = sub_ext(2,l)
+                eyl = sub_ext(3,l) - 1
+                eyu = sub_ext(4,l)
+                ezl = 0
+                ezu = 1
+                write(fname, '(A, I0.3, A)') 'Field_', l-1, '.vti'
+                WRITE(14, '(A, 6I4, A)') '<Piece Extent="', exl, exu, eyl, eyu, &
+                    ezl, ezu, '" Source="'//fname//'"/>'
+            enddo
+            WRITE(14, '(A)') '</PImageData>'
+            WRITE(14, '(A)') '</VTKFile>'
+            CLOSE(UNIT=14)
+        endif
+
+    END SUBROUTINE saveFlowFieldVTI
+
 
     subroutine saveNodeCounts
         implicit none
