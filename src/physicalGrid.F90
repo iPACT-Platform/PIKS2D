@@ -73,7 +73,7 @@ contains
         integer :: bxl, bxu, byl, byu ! bound when counting fluid point for sweeping
         integer :: ii, jj
 
-        ds = 0.5d0/(Ny-1)
+        ds = dble(NY)/dble(NX)/(Ny-1)
 
         ! set the extend and sizes
         Nxtotal = xug - xlg + 1
