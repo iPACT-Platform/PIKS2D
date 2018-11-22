@@ -1,0 +1,25 @@
+&physicalNml
+imageFileName = 'carpetL3.dat'
+Nx = 540,
+Ny = 540,
+wallExtOrder = 2/
+
+&velocityNml
+Nc_fundamental = 12,
+halfRange = T /
+
+&mpiNml
+mpi_xdim = 1,
+mpi_ydim = 1/
+
+&solverNml
+maxStep = 100,
+chkConvergeStep = 10000,
+saveStep = 5000000,
+eps = 1.0d-8/
+
+&flowNml
+allKnStr = '1.0d-1, 1.0d, 1.0d1',
+nKn = 2,
+pressDrop = 1.0d-3,
+accom = 1.d0/

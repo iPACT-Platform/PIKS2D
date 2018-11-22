@@ -10,7 +10,7 @@ namelist /physicalNml/ imageFileName, Nx, Ny, wallExtOrder
 namelist /velocityNml/ Nc_fundamental, halfRange
 namelist /mpiNml/ mpi_xdim, mpi_ydim, block_repx, block_repy
 namelist /solverNml/ maxStep, chkConvergeStep, saveStep, eps, saveFormat
-namelist /flowNml/ Kn, pressDrop, accom
+namelist /flowNml/ allKnStr, pressDrop, accom
 ! file units
 integer, parameter :: PARAFILE = 10
 
@@ -70,7 +70,8 @@ contains
         print*, "saveStep = ", saveStep
         print*, "eps = ", eps
         print*, "saveFormat = ", saveFormat
-        print*, "Kn = ", Kn
+        print*, "allKnStr = ", allKnStr
+        print*, "nKn = ", nKn
         print*, "pressDrop = ", pressDrop
         print*, "accom = ", accom
         print*, "======================================"

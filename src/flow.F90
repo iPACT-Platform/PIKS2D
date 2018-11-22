@@ -7,11 +7,14 @@ implicit none
 save
 
 ! flow parameters, to be read from NML: flowNml
-double precision :: Kn, pressDrop, accom
-
+character(len=200) :: allKnStr
+double precision :: pressDrop, accom
 double precision :: mu
 
 
+double precision, dimension(:), allocatable :: allKn
+double precision :: Kn
+integer :: nKn
 double precision, DIMENSION(:,:), ALLOCATABLE :: f1
 double precision, DIMENSION(:), ALLOCATABLE :: Rho, Ux, Uy
 double precision :: mass
@@ -24,8 +27,6 @@ contains
                              f1_south_snd, f1_north_snd, f1_south_rcv, f1_north_rcv
         implicit none
 
-        mu= dsqrt(PI)/2.0d0/Kn
-        
         ALLOCATE(f1(Ntotal,Nc))
         ALLOCATE(Rho(Ntotal), Ux(Ntotal), Uy(Ntotal))
 

@@ -33,6 +33,7 @@ include "mpif.h"
 INTEGER :: MPI_ERR, MPI_PROVIDED
 INTEGER(c_int) :: sleep
 double precision :: startTime, endTime
+integer :: kni
 
 
 ! Initialize MPI environment
@@ -62,29 +63,33 @@ CALL setupFlow
 !sleep = FortSleep(20)
 !write(*,*) sleep
 
-! set error
-error = 1.D0
 startTime = MPI_Wtime()
 ! Main iteration loop
-DO iStep = 1, maxStep
-! Save data if required
-    CALL iterate
-    ! if(proc==master) PRINT*, "STEP: ", iStep
-    IF ( MOD(iStep,chkConvergeStep) == 0 ) CALL chkConverge
-    if ( MOD(iStep,saveStep) == 0 )  then
-        SELECT CASE (saveFormat)
-            CASE (1)
-                call saveFlowFieldVTI
-            CASE (2)
-                call saveFlowField
-            CASE (3)
-                call saveFlowFieldVTK
-        END SELECT
-    endif
-    IF ( error <= eps ) then
-        EXIT
-    ENDIF
-END DO
+! for each Kn in allKn
+do  kni = 1, nKn
+    Kn = allKn(kni)
+    mu = dsqrt(PI)/2.0d0/Kn
+    ! set error
+    error = 1.D0
+    DO iStep = 1, maxStep
+    ! Save data if required
+        CALL iterate
+        IF ( MOD(iStep,chkConvergeStep) == 0 ) CALL chkConverge
+        if ( MOD(iStep,saveStep) == 0 )  then
+            SELECT CASE (saveFormat)
+                CASE (1)
+                    call saveFlowFieldVTI
+                CASE (2)
+                    call saveFlowField
+                CASE (3)
+                    call saveFlowFieldVTK
+            END SELECT
+        endif
+        IF ( error <= eps ) then
+            EXIT
+        ENDIF
+    END DO
+enddo
 endTime = MPI_Wtime()
 if(proc==master) then
     write(*,'(A,ES11.2, A, I6, A, ES15.6)') "Walltime= ", endTime - startTime, &
