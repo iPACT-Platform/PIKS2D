@@ -676,9 +676,9 @@ contains
         IF ( IO_ERR == 0 ) THEN
             WRITE(13,'(A)') '<?xml version="1.0"?>'
             WRITE(13,'(A)') '<VTKFile type="ImageData">'
-            WRITE(13,'(A, 6I4, A)') '<ImageData WholeExtent="', exl, exu, & 
+            WRITE(13,'(A, 6I8, A)') '<ImageData WholeExtent="', exl, exu, & 
                 eyl, eyu, ezl, ezu, ' " Origin="0 0 0" Spacing="1 1 1">'
-            WRITE(13, '(A, 6I4, A)') '<Piece Extent="', exl, exu, eyl, eyu, &
+            WRITE(13, '(A, 6I8, A)') '<Piece Extent="', exl, exu, eyl, eyu, &
                 ezl, ezu, '">'
             WRITE(13, '(A)') '<CellData Scalars="flag Rho" Vectors ="U">'
             WRITE(13, '(A)') '<DataArray type="Int32" Name="flag" format="ascii">'
@@ -740,7 +740,7 @@ contains
               IOSTAT = IO_ERR)
             WRITE(14,'(A)') '<?xml version="1.0"?>'
             WRITE(14,'(A)') '<VTKFile type="PImageData">'
-            WRITE(14,'(A, 6I4, A)') '<PImageData WholeExtent="', wexl, wexu, & 
+            WRITE(14,'(A, 6I8, A)') '<PImageData WholeExtent="', wexl, wexu, & 
                 weyl, weyu, wezl, wezu, ' " Origin="0 0 0" Spacing="1 1 1">'
             WRITE(14,'(A)') '<PCellData Scalars="flag Rho" Vectors ="U">'
             WRITE(14, '(A)') '<DataArray type="Int32" Name="flag" format="ascii"/>'
@@ -757,7 +757,7 @@ contains
                 ezl = 0
                 ezu = 1
                 write(fname, '(A, I0.3, A)') 'Field_', l-1, '.vti'
-                WRITE(14, '(A, 6I4, A)') '<Piece Extent="', exl, exu, eyl, eyu, &
+                WRITE(14, '(A, 6I8, A)') '<Piece Extent="', exl, exu, eyl, eyu, &
                     ezl, ezu, '" Source="'//fname//'"/>'
             enddo
             WRITE(14, '(A)') '</PImageData>'
