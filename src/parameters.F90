@@ -4,13 +4,14 @@ use velocityGrid
 use mpiParams
 use flow
 use solver
+use string_utility_module
 implicit none
 
 namelist /physicalNml/ imageFileName, Nx, Ny, wallExtOrder
 namelist /velocityNml/ Nc_fundamental, halfRange
 namelist /mpiNml/ mpi_xdim, mpi_ydim, block_repx, block_repy
 namelist /solverNml/ maxStep, chkConvergeStep, saveStep, eps, saveFormat
-namelist /flowNml/ allKnStr, pressDrop, accom
+namelist /flowNml/ allKnStr, nKn, pressDrop, accom
 ! file units
 integer, parameter :: PARAFILE = 10
 
@@ -49,6 +50,10 @@ contains
         Nx = block_repx * Nx
         Ny = block_repy * Ny
 
+        ! allocate allKn
+        allocate(allKn(nKn))
+        ! convert from allKnStr to allKn
+        call str_parse_all_token_to_real(trim(allKnStr), allKn)
     end subroutine initParams
 
 

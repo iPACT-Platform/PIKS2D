@@ -20,6 +20,6 @@ eps = 1.0d-8/
 
 &flowNml
 allKnStr = '1.0d-1, 1.0d, 1.0d1',
-nKn = 2,
+nKn = 3,
 pressDrop = 1.0d-3,
 accom = 1.d0/
