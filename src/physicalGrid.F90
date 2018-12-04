@@ -8,6 +8,8 @@ save
 !domain defination, to be read from NML: velocityNml
 ! Total domain size
 integer :: Nx, Ny
+double precision :: xPadRatio
+
 ! image file name
 character(len=30):: imageFileName
 ! wall extrapolation order, 1, 2, 3(mixed)
@@ -73,7 +75,9 @@ contains
         integer :: bxl, bxu, byl, byu ! bound when counting fluid point for sweeping
         integer :: ii, jj
 
-        ds = dble(NY)/dble(NX)/(Ny-1)
+        !ds = dble(NY)/dble(NX)/(Ny-1)
+        ds = (1.0d0 + xPadRatio)/NX
+        print*, "ds = ", ds
 
         ! set the extend and sizes
         Nxtotal = xug - xlg + 1

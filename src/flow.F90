@@ -6,6 +6,7 @@ use velocityGrid, only: PI
 implicit none
 save
 
+integer, parameter :: CK = selected_char_kind('DEFAULT')
 ! flow parameters, to be read from NML: flowNml
 character(len=200) :: allKnStr
 double precision :: pressDrop, accom
@@ -14,6 +15,8 @@ double precision :: mu
 
 double precision, dimension(:), allocatable :: allKn
 double precision :: Kn
+character(kind=CK,len=:), allocatable :: KniStr
+character(kind=CK,len=:), allocatable :: dataSaveDir
 integer :: nKn
 double precision, DIMENSION(:,:), ALLOCATABLE :: f1
 double precision, DIMENSION(:), ALLOCATABLE :: Rho, Ux, Uy

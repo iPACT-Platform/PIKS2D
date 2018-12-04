@@ -550,7 +550,8 @@ contains
             error=dabs(1.d0-mass2/mass)/(chkConvergeStep)
             mass=mass2
             if (proc == master) then           
-                permeability=mass*Kn*dsqrt(4.d0/PI)*(Nx-1)/(Ny-1)/2.d0    
+                permeability=mass*Kn*dsqrt(4.d0/PI)*((Nx-1)/(1.d0+xPadRatio))/(Ny-1)/2.d0
+                !permeability=mass*Kn*dsqrt(4.d0/PI)*(3000.0/1500.0)/2.d0
                 write(*,"( 1I10, 3ES15.6)")  iStep,  mass,  permeability, error
                 open(22,file='Results.dat', position="append")
                 write(22,'(4ES15.6, 1I15)') Kn, mass, permeability, error, iStep
@@ -561,13 +562,26 @@ contains
         CALL MPI_BCAST(error, 1, MPI_DOUBLE_PRECISION, master, MPI_COMM_VGRID, MPI_ERR)
     end subroutine chkConverge
 
-    subroutine saveFlowField
+    subroutine saveFlowField(saveFormat)
+        integer, intent(in) :: saveFormat
+        ! Save final data
+        SELECT CASE (saveFormat)
+            CASE (1)
+                call saveFlowFieldVTI
+            CASE (2)
+                call saveFlowFieldTec
+            CASE (3)
+                call saveFlowFieldVTK
+        END SELECT
+    endsubroutine saveFlowField
+
+    subroutine saveFlowFieldTec
         integer :: j, i, k
         character(21) fname
         write(fname, '(A, I0.3, A)') 'Field_', proc, '.dat'
         !write(fname, '(A, I0.3, A, I0.5, A)') 'Field_', proc, '_T_', iStep, '.dat'
 
-        open(20,file=fname, STATUS='REPLACE')
+        open(20,file=dataSaveDir//"/"//fname, STATUS='REPLACE')
         write(20,*) ' TITLE=" Field"'
         write(20,*) 'StrandID='//itoa(iStep)//',SolutionTime='//itoa(iStep)
         write(20,*) ' VARIABLES=x,y,flag,Rho,Ux,Uy'
@@ -584,7 +598,7 @@ contains
             Enddo
         Enddo
         close(20)
-    end subroutine saveFlowField
+    end subroutine saveFlowFieldTec
 
     SUBROUTINE saveFlowFieldVTK
         IMPLICIT NONE
@@ -595,7 +609,7 @@ contains
         INTEGER :: Nzsub = 1
 
         write(fname, '(A, I0.3, A)') 'Field_', proc, '.vtk'
-        OPEN(UNIT = 12, FILE = fname, STATUS = "REPLACE", POSITION = "APPEND", &
+        OPEN(UNIT = 12, FILE = dataSaveDir//"/"//fname, STATUS = "REPLACE", POSITION = "APPEND", &
           IOSTAT = IO_ERR)
         IF ( IO_ERR == 0 ) THEN
              WRITE(12,'(A)')"# vtk DataFile Version 2.0"
@@ -671,7 +685,7 @@ contains
         ezu = zu
 
         write(fname, '(A, I0.3, A)') 'Field_', proc, '.vti'
-        OPEN(UNIT = 13, FILE = fname, STATUS = "REPLACE", POSITION = "APPEND", &
+        OPEN(UNIT = 13, FILE = dataSaveDir//"/"//fname, STATUS = "REPLACE", POSITION = "APPEND", &
           IOSTAT = IO_ERR)
         IF ( IO_ERR == 0 ) THEN
             WRITE(13,'(A)') '<?xml version="1.0"?>'
@@ -736,7 +750,7 @@ contains
 
         if (proc == master) then  
             write(pfname, '(A)') 'Field.pvti'
-            OPEN(UNIT = 14, FILE = pfname, STATUS = "REPLACE", POSITION = "APPEND", &
+            OPEN(UNIT = 14, FILE = dataSaveDir//"/"//pfname, STATUS = "REPLACE", POSITION = "APPEND", &
               IOSTAT = IO_ERR)
             WRITE(14,'(A)') '<?xml version="1.0"?>'
             WRITE(14,'(A)') '<VTKFile type="PImageData">'

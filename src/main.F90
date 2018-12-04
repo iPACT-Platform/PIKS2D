@@ -33,7 +33,7 @@ include "mpif.h"
 INTEGER :: MPI_ERR, MPI_PROVIDED
 INTEGER(c_int) :: sleep
 double precision :: startTime, endTime
-integer :: kni
+integer :: kni, str_start_i ! used to parse token
 
 
 ! Initialize MPI environment
@@ -66,45 +66,54 @@ CALL setupFlow
 startTime = MPI_Wtime()
 ! Main iteration loop
 ! for each Kn in allKn
+
+str_start_i = 1 ! used to parse KniStr
+
 do  kni = 1, nKn
     Kn = allKn(kni)
     mu = dsqrt(PI)/2.0d0/Kn
+
+    ! now get the KniStr, the results for each Kn will be saved in its
+    ! own directory
+    call str_parse_next_token(allKnStr, str_start_i, KniStr)
+    dataSaveDir = "Kn"//KniStr
+    if (nKn .eq. 1) then
+        ! if only one Kndsen number, will store in current directory
+        dataSaveDir = "."
+    endif
+
     ! set error
     error = 1.D0
-    DO iStep = 1, maxStep
+
+    do iStep = 1, maxStep
     ! Save data if required
         CALL iterate
         IF ( MOD(iStep,chkConvergeStep) == 0 ) CALL chkConverge
         if ( MOD(iStep,saveStep) == 0 )  then
-            SELECT CASE (saveFormat)
-                CASE (1)
-                    call saveFlowFieldVTI
-                CASE (2)
-                    call saveFlowField
-                CASE (3)
-                    call saveFlowFieldVTK
-            END SELECT
+            call saveFlowField(saveFormat)
         endif
-        IF ( error <= eps ) then
-            EXIT
-        ENDIF
-    END DO
-enddo
+        if ( error <= eps ) then
+            call saveFlowField(saveFormat)
+            if(proc ==  master) then
+                print*, "Converged, exit"
+            endif
+            exit
+        endif
+    enddo
+
+    if(proc == master) then 
+        print*, "Reaches maximum of steps, end of ", KniStr
+    endif
+    call saveFlowField(saveFormat)
+
+enddo ! end of each Kn
+
+! calculating wall time
 endTime = MPI_Wtime()
 if(proc==master) then
     write(*,'(A,ES11.2, A, I6, A, ES15.6)') "Walltime= ", endTime - startTime, &
     ", Steps= ", iStep, ", K= ", permeability
 endif
-
-! Save final data
-SELECT CASE (saveFormat)
-    CASE (1)
-        call saveFlowFieldVTI
-    CASE (2)
-        call saveFlowField
-    CASE (3)
-        call saveFlowFieldVTK
-END SELECT
 
 ! Free memory, close MPI environment and end program
 CALL memFree
