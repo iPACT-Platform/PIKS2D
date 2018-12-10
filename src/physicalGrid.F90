@@ -40,7 +40,6 @@ integer, parameter :: column=2 ! layer to extract flow rate
 ! raw and extended flag array
 integer, dimension (:,:), allocatable :: array2D, array2Dg
 integer, dimension (:), allocatable :: image
-
 ! grid point flags
 integer, parameter :: fluid = 0, solid = 1, ghost=4
 integer, parameter :: WallXpYp = 20, WallYp = 21, WallXnYp = 22, WallXn = 23
@@ -76,7 +75,7 @@ contains
         integer :: ii, jj
 
         !ds = dble(NY)/dble(NX)/(Ny-1)
-        ds = (1.0d0 + xPadRatio)/NX
+        ds = (1.0d0 + xPadRatio)/(NX-1)
         print*, "ds = ", ds
 
         ! set the extend and sizes
