@@ -2,24 +2,24 @@
 imageFileName = 'carpetL3.dat'
 Nx = 540,
 Ny = 540,
-wallExtOrder = 2/
+wallExtOrder = 3/
 
 &velocityNml
-Nc_fundamental = 12,
+Nc_fundamental = 4,
 halfRange = T /
 
 &mpiNml
-mpi_xdim = 1,
+mpi_xdim = 2,
 mpi_ydim = 1/
 
 &solverNml
 maxStep = 100,
 chkConvergeStep = 10000,
 saveStep = 5000000,
+saveFormat = 1,
 eps = 1.0d-8/
 
 &flowNml
-allKnStr = '1.0d-1, 1.0d, 1.0d1',
-nKn = 3,
+allKnStr = '1.0d-1,5.0d-2,2.0d-2',
 pressDrop = 1.0d-3,
 accom = 1.d0/
