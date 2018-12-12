@@ -1,12 +1,24 @@
-!=======================================================================
-!> @brief Physical space configurations
-!=======================================================================
+!-------------------------------------------------------------------------------
+! module    : velocityGrid
+!-------------------------------------------------------------------------------
+! This is a module for velocity space configurations of 2D DVM parallel solver. 
+! For details:
+!
+! [1]   M.T. Ho, L. Zhu, L. Wu, P. Wang, Z. Guo, Z.-H. Li, Y. Zhang
+!       "A multi-level parallel solver for rarefied gas flows in porous media"
+! 		Computer Physics Communications, 234 (2019), pp. 14-25
+!
+!	See Section 2.2 of Ref.[1]
+!-------------------------------------------------------------------------------
 module velocityGrid
 use gaussHermite
 
 implicit none
 
-!Number of fundamental molecular velocity, to be read from NML: velocityNml
+! 2*Nc_fundamental is the number of the discrete velocities in one axis,
+! or the order of the quadrature.
+! The total number of discrete velocities is Nv=(2*Nc_fundamental)^2
+! Nc_fundamental to be read from NML: velocityNml
 integer :: Nc_fundamental
 logical :: halfRange
 
@@ -25,6 +37,12 @@ double precision, parameter :: PI=datan(1.d0)*4.d0
 double precision :: DiffFlux
 
 contains
+    !> @brief setup the discrete velocity grid
+    !!
+    !! Use Nc_fundamental[integer] and halfRange[logical],
+    !! to construct the discrete velocity set and weight coefficients.
+    !! If halfRange = true, then use half-range Gauss-Hermite quadrature
+    !! points as discrete velocities, otherwise use the full-range Gauss-Hermite quadrature.
     subroutine setupVelocityGrid
         implicit none
         integer :: l, m, n, i
@@ -123,6 +141,7 @@ contains
             End do
         End do
 
+		! diffFlux is a velocity-set related constant, see denominator of Eq.(9) in Ref.[1]
         DiffFlux=0.d0
         Do l=1,Nc/2
             DiffFlux=DiffFlux+cy(l)*w(l)

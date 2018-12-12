@@ -1,6 +1,16 @@
-!----------------------------------------------------------------------
-!> @brief Flow field array and physical simualtion parameters
-!----------------------------------------------------------------------
+!-------------------------------------------------------------------------------
+! module    : flow
+!-------------------------------------------------------------------------------
+! This is a module for the flow parameters of 2D DVM parallel solver. 
+! For details:
+!
+! [1]   M.T. Ho, L. Zhu, L. Wu, P. Wang, Z. Guo, Z.-H. Li, Y. Zhang
+!       "A multi-level parallel solver for rarefied gas flows in porous media"
+! 		Comput. Phys. Commun., 234 (2019), pp. 14-25
+!
+!	Initial conditions for velocity distribution function, velocity are set.
+!-------------------------------------------------------------------------------
+
 module flow
 use velocityGrid, only: PI
 implicit none
@@ -14,11 +24,15 @@ double precision :: mu
 
 
 double precision, dimension(:), allocatable :: allKn
+! Kn : Knudsen number defined in Eq.(1) of [1]
 double precision :: Kn
 character(kind=CK,len=:), allocatable :: KniStr
 character(kind=CK,len=:), allocatable :: dataSaveDir
 integer :: nKn
+! f1(spatial_id,velocity_id,sweeppath_id) : velocity distribution function in Eq.(5) of [1]
 double precision, DIMENSION(:,:), ALLOCATABLE :: f1
+! Rho : number density in Eq.(6) of [1]
+! Ux, Uy : two component of velocity vector U in Eq.(6) of [1]
 double precision, DIMENSION(:), ALLOCATABLE :: Rho, Ux, Uy
 double precision :: mass
 

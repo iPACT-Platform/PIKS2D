@@ -1,3 +1,16 @@
+!-------------------------------------------------------------------------------
+! module    : mpiParams
+!-------------------------------------------------------------------------------
+! This is a module for MPI configuration for 2D DVM solver.
+! For details:
+!
+! [1]   M.T. Ho, L. Zhu, L. Wu, P. Wang, Z. Guo, Z.-H. Li, Y. Zhang
+!       "A multi-level parallel solver for rarefied gas flows in porous media"
+! 		Computer Physics Communications, 234 (2019), pp. 14-25
+!
+!	See Section 3.2 of Ref.[1]
+!-------------------------------------------------------------------------------
+
 !----------------------------------------------------------------------
 !> @brief MPI related parameters and information exchange buffer arrays
 !> @details

@@ -1,6 +1,50 @@
-!=======================================================================
-!> @brief Physical space configurations
-!=======================================================================
+!-------------------------------------------------------------------------------
+! module    : physicalGrid
+!-------------------------------------------------------------------------------
+! This is a module for physical (spatial) space configurations of 2D DVM parallel solver. 
+! For details:
+!
+! [1]   M.T. Ho, L. Zhu, L. Wu, P. Wang, Z. Guo, Z.-H. Li, Y. Zhang
+!       "A multi-level parallel solver for rarefied gas flows in porous media"
+! 		Computer Physics Communications, 234 (2019), pp. 14-25
+!
+!	Surface nodes are categorized into flat, 2-fold corner 
+!   so the proper diffusive BC can be applied later (Fig.1 of Ref.[1]). 
+!	For fluid nodes, there are 4 groups of molecular velocity and hence 4 paths of sweep. 
+!   Weighting of fluid nodes in upwind schemes are store in arrays 
+!   (See Section 2.3, 3.1, Figure 1 of Ref.[1]). 
+!   At least 2 fluid layers inside each pore is assumed for the input digital image.
+!
+!! dir1,dir2,..,dir4 : 4 paths of sweep
+!! coef1,coef2,..,coef4: arrays storing weighting of fluid nodes in upwind schemes
+!
+!       ---------------------------------
+!				symmetric BC
+!       ---------------------------------
+!       ||i                           o||                   y
+!       ||n                           u||                   /\
+!       ||-                           t||                   |
+!       ||l                           l||                   |
+!       ||e                           e||                   |
+!       ||t                           t||                   |
+!       ---------------------------------                   |----------->x
+!				symmetric BC
+!       ---------------------------------
+!
+!
+!
+!                       II      |       I
+!                               |
+!                               |
+!               ----------------------------------  molecular velocity group
+!                               |
+!                               |
+!                       III     |       IV
+!
+! Periodic & pressure drop on inlet&outlet
+! Symmetry on lateral wall
+!-------------------------------------------------------------------------------
+
 module physicalGrid
 implicit none
 save

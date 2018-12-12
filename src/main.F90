@@ -1,3 +1,18 @@
+!-------------------------------------------------------------------------------
+! Program    : main
+!-------------------------------------------------------------------------------
+! This is the main file of 2D DVM parallel solver. 
+! For details:
+!
+! [1]   M.T. Ho, L. Zhu, L. Wu, P. Wang, Z. Guo, Z.-H. Li, Y. Zhang
+!       "A multi-level parallel solver for rarefied gas flows in porous media"
+! 		Computer Physics Communications, 234 (2019), pp. 14-25
+!
+! A digital image (2D array of binary data) of porous medium will be read.
+! Linearized BGK kinetic model of Boltzmann equation will be solved to find
+! gas apparent permeability as a function of Knudsen number.
+!-------------------------------------------------------------------------------
+
 module Fortran_Sleep
    use, intrinsic :: iso_c_binding, only: c_int
 
