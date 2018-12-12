@@ -1,3 +1,55 @@
+!-------------------------------------------------------------------------------
+! module    : solver
+!-------------------------------------------------------------------------------
+! This is a module for each iteration solving numerically the govering Equation (4) of Ref. [1]. 
+! For details:
+!
+! [1]   M.T. Ho, L. Zhu, L. Wu, P. Wang, Z. Guo, Z.-H. Li, Y. Zhang
+!       "A multi-level parallel solver for rarefied gas flows in porous media"
+! 		Computer Physics Communications, 234 (2019), pp. 14-25
+!
+!	For fluid nodes, there are 8 groups of molecular velocity and hence 8 paths of sweep. 
+!   Boundary conditions on the solid surface are calculated.
+! 	Macroscopic parameters for fluid nodes such as density number, velocity are calculated.
+!	OpenMP for loop accelaration and  buffer pack/unpack are implemented.
+!   See Section 2.3, 3.1, 3.2, Algorithm 1, Figure 1 of Ref.[1]
+!
+!
+!!  f(spatial_id,velocity_id,sweeppath_id)  : velocity distribution function in Eq.(5) of [1], main unknow to be solved
+!!  fEq: equilibrium distribution function in Eq.(3) of [1]
+!!  cx, cy: discrete velocity components in x, y directions 
+!!  dir1,dir2,..,dir4 : 4 paths of sweep
+!!  coef1,coef2,..,coef4: arrays storing weighting of fluid nodes in upwind schemes
+!!  RhoWall:  number density on the solid surface in Eq.(9) of Ref.[1]
+!
+!
+!       ---------------------------------
+!				symmetric BC
+!       ---------------------------------
+!       ||i                           o||                   y
+!       ||n                           u||                   /\
+!       ||-                           t||                   |
+!       ||l                           l||                   |
+!       ||e                           e||                   |
+!       ||t                           t||                   |
+!       ---------------------------------                   |----------->x
+!				symmetric BC
+!       ---------------------------------
+!
+!
+!
+!                       II      |       I
+!                               |
+!                               |
+!               ----------------------------------  molecular velocity group
+!                               |
+!                               |
+!                       III     |       IV
+!
+! Periodic & pressure drop on inlet&outlet
+! Symmetry on lateral wall
+!-------------------------------------------------------------------------------
+
 module solver
 
 use flow

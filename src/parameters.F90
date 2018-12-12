@@ -1,3 +1,36 @@
+!-------------------------------------------------------------------------------
+! module    : parameters
+!-------------------------------------------------------------------------------
+! This is a module reading simulation parameters specified by users
+! in "para.in" file for 2D DVM solver.
+! For details:
+!
+! [1]   M.T. Ho, L. Zhu, L. Wu, P. Wang, Z. Guo, Z.-H. Li, Y. Zhang
+!       "A multi-level parallel solver for rarefied gas flows in porous media"
+! 		Computer Physics Communications, 234 (2019), pp. 14-25
+!
+!! @param imageFileName : file name of the digital porous image
+!! @param Nx, Ny   : number of pixels in x, y direction
+!! @param wallExtOrder  : order of extrapolation scheme for incomming f at solid 
+!! @param fluidLayer 	: number of fluid layers will be added at (each) inlet, outlet
+!!						  allows periodic BC available (see page 21 of Ref.[1])
+!! @param Ref_L 		: reference length defined by Nx/Ny 
+!! @param Nc_fundamental: half of the number of the discrete velocities in one axis
+!!						  The total number of discrete velocities is Nv=(2*Nc_fundamental)^3
+!! @param halfRange 	: half-range or full-range Gauss-Hermit is chosen
+!!						  halfRange=T means half-range, halfRange=F means full-range
+!! @param mpi_xdim, mpi_ydim, mpi_zdim : number of MPI (processes) subdomains in x,y,z direction, Section 5.2 of Ref.[1]
+!! @param maxStep 		: maximum number of iterations
+!! @param chkConvergeStep : iteration interval for checking convergence criteria Eq.(18) of Ref.[1]	
+!! @param saveStep 		: iteration interval for exporting output files	
+!! @param eps 			: convergence tolerance Eq.(18) of Ref.[1]	
+!! @param saveLast 		: whether data from the last iteration is save or not
+!! @param saveFormat 	: flow field format (1) VTI (2) Tecplot (3) VTK	
+!! @param Kn		 	: Knudsen number defined in Eq.(1) of [1]	
+!! @param pressDrop		: pressure drop applied at inlet/outlet Eq.(10) of [1]
+!! @param accom		 	: tangential momentum accommodation coefficient (TMAC)  Eq.(8) of [1]				
+!-------------------------------------------------------------------------------
+
 module parameters
 use physicalGrid
 use velocityGrid

@@ -1,11 +1,22 @@
-!----------------------------------------------------------------------
-!> @brief Stores the Gauss Hermite quadrature points and weights
-!----------------------------------------------------------------------
+!-------------------------------------------------------------------------------
+! module    : gaussHermite
+!-------------------------------------------------------------------------------
+! This is a module storing the (full-range/half-range) Gauss Hermite quadrature
+! points and weights. 
+! For details:
+!
+! [1]   M.T. Ho, L. Zhu, L. Wu, P. Wang, Z. Guo, Z.-H. Li, Y. Zhang
+!       "A multi-level parallel solver for rarefied gas flows in porous media"
+! 		Computer Physics Communications, 234 (2019), pp. 14-25
+!
+!	See Section 2.2 of Ref.[1]
+!-------------------------------------------------------------------------------
+
 module gaussHermite
 implicit none
 save
 
-! GH Nc_fundamental = 2
+! full-range GH Nc_fundamental = 2
 double precision, parameter, dimension(2) :: xi2 = (/&
      5.2464762327529035d-01, &
      1.6506801238857844d+00  &
@@ -16,7 +27,7 @@ double precision, parameter, dimension(2) :: wi2 = (/&
      4.5875854768068512d-02  &
     /) 
 
-! GH Nc_fundamental = 4
+! full-range GH Nc_fundamental = 4
 double precision, parameter, dimension(4) :: xi4 = (/&
      3.811869902073221072d-01, &
      1.157193712446780154d+00, &
@@ -31,6 +42,7 @@ double precision, parameter, dimension(4) :: wi4 = (/&
      1.126145383753677815d-04  &
     /)
 
+! full-range GH Nc_fundamental = 6
 double precision, parameter, dimension(6) :: xi6 = (/&
     3.142403762543591112766d-01, &
     9.477883912401637437050d-01, &
@@ -49,7 +61,7 @@ double precision, parameter, dimension(6) :: wi6 = (/&
     2.658551684356301606020d-07  &
     /)
 
-! GH Nc_fundamental = 8
+! full-range GH Nc_fundamental = 8
 double precision, parameter, dimension(8) :: xi8 = (/&
      2.734810461381524394d-01, &
      8.229514491446558999d-01, &
@@ -72,7 +84,7 @@ double precision, parameter, dimension(8) :: wi8 = (/&
     /)
 
 
-! GH Nc_fundamental = 12
+! full-range GH Nc_fundamental = 12
 double precision, parameter, dimension(12) :: xi12 = (/&
      2.244145474725156020d-01, &
      6.741711070372122805d-01, &
@@ -102,7 +114,7 @@ double precision, parameter, dimension(12) :: wi12 = (/&
      1.664368496489108956d-16  &
     /)
 
-! GH Nc_fundamental = 16
+! full-range GH Nc_fundamental = 16
 double precision, parameter, dimension(16) :: xi16 = (/&
      1.948407415693993172d-01, &
      5.849787654359324129d-01, &
@@ -141,7 +153,7 @@ double precision, parameter, dimension(16) :: wi16 = (/&
      7.310676427384162728d-23  &
     /)
 
-! half-GH Nc_fundamental = 2
+! half-range GH Nc_fundamental = 2
 double precision, parameter, dimension(2) :: hxi2 = (/&
      3.001939310608394140d-01, &
      1.252421045333717009d+00  &
@@ -152,7 +164,7 @@ double precision, parameter, dimension(2) :: hwi2 = (/&
     /)
 
 
-! half-GH Nc_fundamental = 4
+! half-range GH Nc_fundamental = 4
 double precision, parameter, dimension(4) :: hxi4 = (/&
      1.337764469960676383d-01, &
      6.243246901871899457d-01, &
@@ -167,7 +179,7 @@ double precision, parameter, dimension(4) :: hwi4 = (/&
      3.596326913110175095d-03  &
     /)
 
-! half-GH Nc_fundamental = 6
+! half-range GH Nc_fundamental = 6
 double precision, parameter, dimension(6) :: hxi6 = (/&
      7.860065941318034044d-02, &
      3.867394102709340586d-01, &
@@ -186,7 +198,7 @@ double precision, parameter, dimension(6) :: hwi6 = (/&
      5.555667649755732833d-05  &
     /)
 
-! half-GH Nc_fundamental = 8
+! half-range GH Nc_fundamental = 8
 double precision, parameter, dimension(8) :: hxi8 = (/&
      5.297864393185112986d-02, &
      2.673983721677653524d-01, &
@@ -210,7 +222,7 @@ double precision, parameter, dimension(8) :: hwi8 = (/&
     /)
 
 
-! half-GH Nc_fundamental = 12
+! half-range GH Nc_fundamental = 12
 double precision, parameter, dimension(12) :: hxi12 = (/&
      2.988970076966438599d-02, &
      1.542048782658252404d-01, &
@@ -241,7 +253,7 @@ double precision, parameter, dimension(12) :: hwi12 = (/&
      6.668462318857458322d-11  &
     /)
 
-! half-GH Nc_fundamental = 16
+! half-range GH Nc_fundamental = 16
 double precision, parameter, dimension(16) :: hxi16 = (/&
      1.975365846007861789d-02, &
      1.028022452379241530d-01, &
