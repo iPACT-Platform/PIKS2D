@@ -4,6 +4,7 @@
 !   Lianhua Zhu <zhulianhua121@gmail.com> 
 !   and Minh-Tuan Ho <minhtuanho.vn@gmail.com>
 !   and Yonghao Zhang <y.h.zhang168@gmail.com>
+! Copyright (c) Carlos Rosales (carlosrosales/mplabs)
 
 ! Permission is hereby granted, free of charge, to any person obtaining a copy
 ! of this software and associated documentation files (the "Software"), to deal
