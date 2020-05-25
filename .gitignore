@@ -7,7 +7,6 @@
 build
 run
 CMakeLists.txt
-Makefile
 old
 debug
 pdata
