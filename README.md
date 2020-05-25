@@ -3,7 +3,7 @@
 Put add this line on your ~/.bashrc
 
 ```bash
-alias dvm='export PRJ=${HOME}/mpi_dvm; source ${PRJ}/conf/bashrc cylinders'
+alias dvm='export PRJ=${HOME}/mpi_dvm2d; source ${PRJ}/conf/bashrc cylinders'
 ```
 
 Any time your login and needs to work on the project, type `dvm`. 
