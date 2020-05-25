@@ -3,7 +3,7 @@
 #FC=ifort
 
 # GNU Fotran setting
-MPIFC=mpif90 -f90=gfortran
+MPIFC=mpif90
 FC=gfortran
 
 # Release mode flags
