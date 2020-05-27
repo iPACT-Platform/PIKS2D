@@ -40,11 +40,9 @@
 
 module Fortran_Sleep
    use, intrinsic :: iso_c_binding, only: c_int
-
    implicit none
 
    interface
-
       !  should be unsigned int ... not available in Fortran
       !  OK until highest bit gets set.
       function FortSleep (seconds)  bind ( C, name="sleep" )
@@ -52,34 +50,32 @@ module Fortran_Sleep
           integer (c_int) :: FortSleep
           integer (c_int), intent (in), VALUE :: seconds
       end function FortSleep
-
    end interface
-
 end module Fortran_Sleep
 
-PROGRAM main
+program main
 !Common Variables
-USE parameters
-USE flow
-USE MPIParams
-USE solver
+use parameters
+use flow
+use MPIParams
+use solver
 use, intrinsic :: iso_c_binding, only: c_int
 use Fortran_Sleep
 
-IMPLICIT NONE
+implicit none
 include "mpif.h"
 
 ! Local variables
-INTEGER :: MPI_ERR, MPI_PROVIDED
-INTEGER(c_int) :: sleep
+integer :: MPI_ERR, MPI_PROVIDED
+integer(c_int) :: sleep
 double precision :: startTime, endTime
 integer :: kni, str_start_i ! used to parse token
 
 
 ! Initialize MPI environment
-CALL MPI_INIT_THREAD(MPI_THREAD_FUNNELED, MPI_PROVIDED, MPI_ERR)
-CALL MPI_COMM_SIZE(MPI_COMM_WORLD, nprocs, MPI_ERR)
-CALL MPI_COMM_RANK(MPI_COMM_WORLD, proc, MPI_ERR)
+call MPI_INIT_THREAD(MPI_THREAD_FUNNELED, MPI_PROVIDED, MPI_ERR)
+call MPI_COMM_SIZE(MPI_COMM_WORLD, nprocs, MPI_ERR)
+call MPI_COMM_RANK(MPI_COMM_WORLD, proc, MPI_ERR)
 
 ! initialize (read) user input parmeters
 call initParams
@@ -89,13 +85,13 @@ if (proc == master) then
 endif
 
 ! setup discrete velocity grid
-CALL setupVelocityGrid
+call setupVelocityGrid
 ! read and create virtual CPU grid
-CALL setupVirtualProcessGrid
+call setupVirtualProcessGrid
 ! setup global and local grid system
-CALL setupPhysicalGrid
+call setupPhysicalGrid
 ! allocate flow data array and initialize
-CALL setupFlow
+call setupFlow
 ! save nodeCounts, switch off here
 !call saveNodeCounts
 
@@ -127,8 +123,8 @@ do  kni = 1, nKn
 
     do iStep = 1, maxStep
     ! Save data if required
-        CALL iterate
-        IF ( MOD(iStep,chkConvergeStep) == 0 ) CALL chkConverge
+        call iterate
+        if ( MOD(iStep,chkConvergeStep) == 0 ) call chkConverge
         if ( MOD(iStep,saveStep) == 0 )  then
             call saveFlowField(saveFormat)
         endif
@@ -145,21 +141,18 @@ do  kni = 1, nKn
         print*, "Reaches maximum of steps, end of ", KniStr
     endif
     call saveFlowField(saveFormat)
-
 enddo ! end of each Kn
 
 ! calculating wall time
-endTime = MPI_Wtime()
-if(proc==master) then
+endTime = MPI_WTIME()
+if (proc==master) then
     write(*,'(A,ES11.2, A, I6, A, ES15.6)') "Walltime= ", endTime - startTime, &
     ", Steps= ", iStep, ", K= ", permeability
 endif
 
 ! Free memory, close MPI environment and end program
-CALL memFree
-CALL MPI_BARRIER(MPI_COMM_WORLD, MPI_ERR)
-CALL MPI_FINALIZE(MPI_ERR)
+call memFree
+call MPI_BARRIER(MPI_COMM_WORLD, MPI_ERR)
+call MPI_FINALIZE(MPI_ERR)
 
-END PROGRAM
-
-! Minh
+endprogram

@@ -69,8 +69,8 @@ contains
                              f1_south_snd, f1_north_snd, f1_south_rcv, f1_north_rcv
         implicit none
 
-        ALLOCATE(f1(Ntotal,Nc))
-        ALLOCATE(Rho(Ntotal), Ux(Ntotal), Uy(Ntotal))
+        allocate(f1(Ntotal,Nc))
+        allocate(Rho(Ntotal), Ux(Ntotal), Uy(Ntotal))
 
         f1=0.d0
         Rho = 0.d0

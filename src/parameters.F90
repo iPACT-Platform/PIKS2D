@@ -94,11 +94,11 @@ contains
         end if
 
         ! read data into the declared namelist
-        read(UNIT=PARAFILE,NML=physicalNml,IOSTAT=ios)
-        read(UNIT=PARAFILE,NML=velocityNml,IOSTAT=ios)
-        read(UNIT=PARAFILE,NML=mpiNml,IOSTAT=ios)
-        read(UNIT=PARAFILE,NML=solverNml,IOSTAT=ios)
-        read(UNIT=PARAFILE,NML=flowNml,IOSTAT=ios) 
+        read(unit=PARAFILE,nml=physicalNml,iostat=ios)
+        read(unit=PARAFILE,nml=velocityNml,iostat=ios)
+        read(unit=PARAFILE,nml=mpiNml,iostat=ios)
+        read(unit=PARAFILE,nml=solverNml,iostat=ios)
+        read(unit=PARAFILE,nml=flowNml,iostat=ios) 
 
         if (ios /= 0) then
             print*,'ERROR: could not read namelist, may be format is wrong'

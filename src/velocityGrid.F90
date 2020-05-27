@@ -101,7 +101,7 @@ contains
                      "has not been provided"
                     deallocate(xi)
                     deallocate(weight1D)
-            end select
+            endselect
         else
             select case (Nc_fundamental)
                 case(2)
@@ -127,7 +127,7 @@ contains
                      "has not been provided"
                     deallocate(xi)
                     deallocate(weight1D)
-            end select
+            endselect
         endif
 
         Nc=(2*Nc_fundamental)**2
@@ -135,42 +135,42 @@ contains
         allocate(cx(Nc), cy(Nc), w(Nc))
         allocate(oppositeX(Nc), oppositeY(Nc))
         
-        Do i=1,4    ! index for molecular velocity group I,II,III,IV
-             Do m=1,Nc_fundamental
-                Do n=1,Nc_fundamental
+        do i=1,4    ! index for molecular velocity group I,II,III,IV
+             do m=1,Nc_fundamental
+                do n=1,Nc_fundamental
                     l=n+(m-1)*Nc_fundamental+(i-1)*Nc_fundamental**2
-                    SELECT CASE (i)
-                        CASE (1)
+                    select case (i)
+                        case (1)
                             cx(l) = xi(n)
                             cy(l) = xi(m)
                             oppositeY(l)=l+3*Nc/4
                             oppositeX(l)=l+Nc/4
-                        CASE (2)
+                        case (2)
                             cx(l) = -xi(n)
                             cy(l) = xi(m)
                             oppositeY(l)=l+Nc/4
                             oppositeX(l)=l-Nc/4
-                        CASE (3)
+                        case (3)
                             cx(l) = -xi(n)
                             cy(l) = -xi(m)
                             oppositeY(l)=l-Nc/4
                             oppositeX(l)=l+Nc/4
-                        CASE (4)
+                        case (4)
                             cx(l) = xi(n)
                             cy(l) = -xi(m)
                             oppositeY(l)=l-3*Nc/4
                             oppositeX(l)=l-Nc/4
-                    END SELECT
+                    endselect
                     w(l) = weight1D(n)*weight1D(m)
-                End do
-            End do
-        End do
+                enddo
+            enddo
+        enddo
 
-		! diffFlux is a velocity-set related constant, see denominator of Eq.(9) in Ref.[1]
+        ! diffFlux is a velocity-set related constant, see denominator of Eq.(9) in Ref.[1]
         DiffFlux=0.d0
-        Do l=1,Nc/2
+        do l=1,Nc/2
             DiffFlux=DiffFlux+cy(l)*w(l)
-        Enddo
+        enddo
 
     end subroutine setupVelocityGrid
 

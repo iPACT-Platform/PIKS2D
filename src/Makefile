@@ -25,8 +25,8 @@ OBJS   = velocityGrid.o physicalGrid.o mpiParams.o flow.o \
 		 string_utility_module.o
 
 #Link into an excutable
-mpi_dvm2d: $(OBJS)
-	$(MPIFC) $(LFLAGS) $(OBJS) -o mpi_dvm2d
+piks2d: $(OBJS)
+	$(MPIFC) $(LFLAGS) $(OBJS) -o $@
 
 #Compile the modules
 main.o : main.F90 flow.o mpiParams.o solver.o parameters.o
@@ -50,7 +50,7 @@ gaussHermite.o : gaussHermite.F90
 	$(MPIFC) $(CFLAGS) gaussHermite.F90
 
 # Build options
-all: mpi_dvm2d
+all: piks2d
 
 clean:
-	rm -f ./*.o ./*.mod ./mpi_dvm2d
+	rm -f ./*.o ./*.mod ./piks2d

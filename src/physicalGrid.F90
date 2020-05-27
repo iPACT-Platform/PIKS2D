@@ -17,10 +17,10 @@
 
 ! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 ! IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+! FITNESS .or.A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUT.or..or.COPYRIGHT HOLDERS BE LIABLE .or.ANY CLAIM, DAMAGES.or.OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, .or..or.OTHERWISE, ARISING FROM,
+! OUT OF.or.IN CONNECTION WITH THE SOFTWARE.or.THE USE.or.OTHER DEALINGS IN THE
 ! SOFTWARE.
 
 !-------------------------------------------------------------------------------
@@ -127,10 +127,10 @@ integer :: nWall
 ! PROC ID
 integer :: peid
 
-integer, DIMENSION(:), ALLOCATABLE :: vecWall
-integer, DIMENSION(:), ALLOCATABLE :: dir1, dir2, dir3, dir4 ! dir1(i) is the ith 
-double precision, DIMENSION(:,:), ALLOCATABLE :: coefI, coefII, coefIII, coefIV
-double precision, DIMENSION(:,:), ALLOCATABLE :: extCoef
+integer, dimension(:), allocatable :: vecWall
+integer, dimension(:), allocatable :: dir1, dir2, dir3, dir4 ! dir1(i) is the ith 
+double precision, dimension(:,:), allocatable :: coefI, coefII, coefIII, coefIV
+double precision, dimension(:,:), allocatable :: extCoef
 
 contains 
     ! should be called after calling MPIParams::setupVirtualProcessGrid
@@ -163,7 +163,7 @@ contains
         !switch for debuging
         !read digital image
         array2D = 0 
-        Open(IMAGEFILE,file=imageFileName,status='OLD')
+        open(IMAGEFILE,file=imageFileName,status='OLD')
             do j=1,Ny_base
                 read(IMAGEFILE, *) (array2D(i,j), i=1, Nx_base) !NOTE: add extral layer
             enddo
@@ -204,7 +204,7 @@ contains
 
         ! calu. poresity
         ! real_porosity=real(countVoidP)/real(Nx*Ny)
-        ! PRINT*, real_porosity
+        ! print*, real_porosity
 
         ! set local image
         image = fluid
@@ -224,19 +224,19 @@ contains
         enddo
 
         !Assign the outerboarder layers (called ghost point in serial program)
-        If (ghostLayers>0) then
-            Do j=ylg,yug
-                Do i=xlg,xug
+        if (ghostLayers>0) then
+            do j=ylg,yug
+                do i=xlg,xug
                     ! test if boundary processor, here the ghost flag doesn't means 
                     ! the communication boundary, but only means the true global 
                     ! outter boarder.
-                    If ((i<xmin).OR.(i>xmax).OR.(j<ymin).OR.(j>ymax)) then 
+                    if ((i<xmin).or.(i>xmax).or.(j<ymin).or.(j>ymax)) then 
                         localid = (j-ylg)*Nxtotal + i-xlg+1
                         image(localid) = ghost
-                    End if
-                Enddo
-            Enddo
-        End if
+                    endif
+                enddo
+            enddo
+        endif
 
         bxl = xlg
         bxu = xug
@@ -249,95 +249,95 @@ contains
 
         ! set wall points type based on sournding point type(f/s)
         nWall=0 ! count the wall points, only in the l, u range are counted!
-        Do j=byl,byu
-            Do i=bxl,bxu
+        do j=byl,byu
+            do i=bxl,bxu
                 !ii = i-xl+1
                 !jj = j-yl+1
                 localid = (j-ylg)*Nxtotal + i-xlg+1
-                If (array2D(i,j)==solid) then
+                if (array2D(i,j)==solid) then
                     NneighborFluid=1 !(1-2-3-4 in D2Q9 corresponding to 2-3-5-7)
                     ! found bug here, array index out of bound of array2D
-                    !If (image(localid+1)==fluid)  NneighborFluid=NneighborFluid*2 
-                    !If (image(localid+Nxtotal)==fluid)  NneighborFluid=NneighborFluid*3
-                    !If (image(localid-1)==fluid)  NneighborFluid=NneighborFluid*5 
-                    !If (image(localid-Nxtotal)==fluid)  NneighborFluid=NneighborFluid*7
-                    If (array2Dg(i+1, j)==fluid)  NneighborFluid=NneighborFluid*2   !Check neighbor on the East(2)
-                    If (array2Dg(i, j+1)==fluid)  NneighborFluid=NneighborFluid*3   !Check neighbor on the North(3)
-                    If (array2Dg(i-1, j)==fluid)  NneighborFluid=NneighborFluid*5   !Check neighbor on the West(5)
-                    If (array2Dg(i, j-1)==fluid)  NneighborFluid=NneighborFluid*7   !Check neighbor on the South(7)
+                    !if (image(localid+1)==fluid)  NneighborFluid=NneighborFluid*2 
+                    !if (image(localid+Nxtotal)==fluid)  NneighborFluid=NneighborFluid*3
+                    !if (image(localid-1)==fluid)  NneighborFluid=NneighborFluid*5 
+                    !if (image(localid-Nxtotal)==fluid)  NneighborFluid=NneighborFluid*7
+                    if (array2Dg(i+1, j)==fluid)  NneighborFluid=NneighborFluid*2   !Check neighbor on the East(2)
+                    if (array2Dg(i, j+1)==fluid)  NneighborFluid=NneighborFluid*3   !Check neighbor on the North(3)
+                    if (array2Dg(i-1, j)==fluid)  NneighborFluid=NneighborFluid*5   !Check neighbor on the West(5)
+                    if (array2Dg(i, j-1)==fluid)  NneighborFluid=NneighborFluid*7   !Check neighbor on the South(7)
 
-                    SELECT Case (NneighborFluid)
-                        CASE (2)
+                    select case (NneighborFluid)
+                        case (2)
                             image(localid)=WallXp
                             if(j .ge. yl .and. j .le. yu .and. i .ge. xl .and. i .le. xu) nWall=nWall+1
-                        CASE (3)
+                        case (3)
                             image(localid)=WallYp
                             if(j .ge. yl .and. j .le. yu .and. i .ge. xl .and. i .le. xu) nWall=nWall+1
-                        CASE (5)
+                        case (5)
                             image(localid)=WallXn
                             if(j .ge. yl .and. j .le. yu .and. i .ge. xl .and. i .le. xu) nWall=nWall+1
-                        CASE (7)
+                        case (7)
                             image(localid)=WallYn
                             if(j .ge. yl .and. j .le. yu .and. i .ge. xl .and. i .le. xu) nWall=nWall+1
-                        CASE (6)
+                        case (6)
                             image(localid)=WallXpYp
                             if(j .ge. yl .and. j .le. yu .and. i .ge. xl .and. i .le. xu) nWall=nWall+1
-                        CASE (15)
+                        case (15)
                             image(localid)=WallXnYp
                             if(j .ge. yl .and. j .le. yu .and. i .ge. xl .and. i .le. xu) nWall=nWall+1
-                        CASE (35)
+                        case (35)
                             image(localid)=WallXnYn
                             if(j .ge. yl .and. j .le. yu .and. i .ge. xl .and. i .le. xu) nWall=nWall+1
-                        CASE (14)
+                        case (14)
                             image(localid)=WallXpYn
                             if(j .ge. yl .and. j .le. yu .and. i .ge. xl .and. i .le. xu) nWall=nWall+1
-                    END SELECT
-                Endif
-            Enddo
-        Enddo
+                    endselect
+                endif
+            enddo
+        enddo
 
-        PRINT*, "nWall = ", nWall
+        print*, "nWall = ", nWall
 
 
 
         ! Create wall-type vectors
         !vecWall(walli) mark the global id of the walli'th wall in the image 
-        ALLOCATE(vecWall(nWall))
+        allocate(vecWall(nWall))
         nWall=0
-        Do j=yl, yu
-            Do i=xl, xu
+        do j=yl, yu
+            do i=xl, xu
                 localid = (j-ylg)*Nxtotal + i-xlg+1
-                SELECT Case (image(localid))
-                    CASE (WallXp)
+                select case (image(localid))
+                    case (WallXp)
                         nWall=nWall+1
                         vecWall(nWall)=localid
-                    CASE (WallYp)
+                    case (WallYp)
                         nWall=nWall+1
                         vecWall(nWall)=localid
-                    CASE (WallXn)
+                    case (WallXn)
                         nWall=nWall+1
                         vecWall(nWall)=localid
-                    CASE (WallYn)
+                    case (WallYn)
                         nWall=nWall+1
                         vecWall(nWall)=localid
-                    CASE (WallXpYp)
+                    case (WallXpYp)
                         nWall=nWall+1
                         vecWall(nWall)=localid
-                    CASE (WallXnYp)
+                    case (WallXnYp)
                         nWall=nWall+1
                         vecWall(nWall)=localid
-                    CASE (WallXnYn)
+                    case (WallXnYn)
                         nWall=nWall+1
                         vecWall(nWall)=localid
-                    CASE (WallXpYn)
+                    case (WallXpYn)
                         nWall=nWall+1
                         vecWall(nWall)=localid
-                END SELECT
-            Enddo
-        Enddo
+                endselect
+            enddo
+        enddo
 
         ! extrapolation coefficients
-        ALLOCATE(extCoef(nWall,2))
+        allocate(extCoef(nWall,2))
         extCoef(:, 1) =  2.d0
         extCoef(:, 2) = -1.d0
         ! set extCoef, if near communication boundary, use 1st order (mixed)
@@ -345,7 +345,7 @@ contains
             localid = vecWall(l)
             i = xlg -1 + mod(localid, Nxtotal) ! wall location in x 
             j = ylg + localid / Nxtotal     ! wall location in y
-            SELECT Case (image(localid))
+            select case (image(localid))
                 case (WallXp)
                     if(i == xu-1 .and. image(localid+1) == fluid) then
                         extCoef(l, 1) = 1.d0
@@ -402,43 +402,43 @@ contains
                         extCoef(l, 1) = 1.d0
                         extCoef(l, 2) = 0.d0
                     endif
-            end select
+            endselect
         enddo
 
         if(wallExtOrder == 2) then
             ! reset to 2nd order
             extCoef(:, 1) =  2.d0
             extCoef(:, 2) = -1.d0
-        else if (wallExtOrder == 1) then
+        elseif (wallExtOrder == 1) then
             ! reset to 1st order
             extCoef(:, 1) =  1.d0
             extCoef(:, 2) =  0.d0
-        else if (wallExtOrder /= 3) then
-            PRINT*, "Error: wallExtOrder wroond shoud be [1|2|3]"
+        elseif (wallExtOrder /= 3) then
+            print*, "Error: wallExtOrder wroond shoud be [1|2|3]"
         endif
 
         ! count num of non-solid points
         Nfluid=0
-        Do j=yl,yu
-            Do i=xl,xu
+        do j=yl,yu
+            do i=xl,xu
                 localid = (j-ylg)*Nxtotal + i-xlg+1
-                If (image(localid) == fluid) then
+                if (image(localid) == fluid) then
                     Nfluid=Nfluid+1
-                End if
-            End do
-        End do
+                endif
+            enddo
+        enddo
         allocate(mapF(Nfluid))
 
         Nfluid=0
-        Do j=yl,yu
-            Do i=xl,xu
+        do j=yl,yu
+            do i=xl,xu
                 localid = (j-ylg)*Nxtotal + i-xlg+1
-                If (image(localid) == fluid) then
+                if (image(localid) == fluid) then
                     Nfluid=Nfluid+1
                     mapF(Nfluid) = localid
-                End if
-            End do
-        End do
+                endif
+            enddo
+        enddo
 
         !Direction 1
         !bound
@@ -446,34 +446,34 @@ contains
         bxu = xu
         byl = yl
         byu = yu
-        if(xl == xmin) bxl = xl + 1 !if most west block(processor)
-        if(yl == ymin) byl = yl + 1 !if most south block
+        if (xl == xmin) bxl = xl + 1 !if most west block(processor)
+        if (yl == ymin) byl = yl + 1 !if most south block
         !if(xu == xmax) bxu = xu     !if most east block(processor)
         !if(yu == ymax) byu = yu     !if most north block   
         !count fluid points when sweeping from 1st direction
         Nstencil1=0
-        Do j=byl,byu
-            Do i=bxl,bxu
+        do j=byl,byu
+            do i=bxl,bxu
                 localid = (j-ylg)*Nxtotal + i-xlg+1
-                If (image(localid)==fluid) then
+                if (image(localid)==fluid) then
                     Nstencil1=Nstencil1+1
-                End if
-            End do
-        End do
+                endif
+            enddo
+        enddo
         !DEBUG
         print*, "Proc ", peid, "Nstencil1 = ", Nstencil1
         !set the icount'th fluid node's localid in the 2D patch
         allocate(dir1(Nstencil1))
         icount=0
-        Do j=byl,byu
-            Do i=bxl,bxu
+        do j=byl,byu
+            do i=bxl,bxu
                 localid = (j-ylg)*Nxtotal + i-xlg+1
-                If (image(localid)==fluid) then
+                if (image(localid)==fluid) then
                     icount=icount+1
                     dir1(icount)=localid
-                End if
-            End do
-        End do
+                endif
+            enddo
+        enddo
 
         !Direction 2
         !bound
@@ -481,32 +481,32 @@ contains
         bxu = xu
         byl = yl
         byu = yu
-        if(xu == xmax) bxu = xu - 1 !if most east block
-        if(yl == ymin) byl = yl + 1 !if most south block
+        if (xu == xmax) bxu = xu - 1 !if most east block
+        if (yl == ymin) byl = yl + 1 !if most south block
         !if(xl == xmin) bxl = xl     !if most west block
         !if(yu == ymax) byu = yu     !if most north block
         !count fluid points when sweeping from 2nd direction
         Nstencil2=0
-        Do j=byl,byu
-            Do i=bxu,bxl,-1
+        do j=byl,byu
+            do i=bxu,bxl,-1
                 localid = (j-ylg)*Nxtotal + i-xlg+1
-                If (image(localid)==fluid) then
+                if (image(localid)==fluid) then
                     Nstencil2=Nstencil2+1
-                End if
-            End do
-        End do
+                endif
+            enddo
+        enddo
         !set the icount'th fluid node's localid in the 2D patch
         allocate(dir2(Nstencil2))
         icount=0
-        Do j=byl,byu
-            Do i=bxu,bxl,-1
+        do j=byl,byu
+            do i=bxu,bxl,-1
                 localid = (j-ylg)*Nxtotal + i-xlg+1
-                If (image(localid)==fluid) then
+                if (image(localid)==fluid) then
                     icount=icount+1
                     dir2(icount)=localid
-                End if
-            End do
-        End do
+                endif
+            enddo
+        enddo
 
         !Direction 3
         !bound
@@ -514,32 +514,32 @@ contains
         bxu = xu
         byl = yl
         byu = yu
-        if(xu == xmax) bxu = xu - 1 !if most east block
-        if(yu == ymax) byu = yu - 1 !if most north block
+        if (xu == xmax) bxu = xu - 1 !if most east block
+        if (yu == ymax) byu = yu - 1 !if most north block
         !if(xl == xmin) bxl = xl     !if most west block
         !if(yl == ymin) byl = yl     !if most south block
         !count fluid points when sweeping from 3rd direction
         Nstencil3=0
-        Do j=byu,byl,-1
-            Do i=bxu,bxl,-1
+        do j=byu,byl,-1
+            do i=bxu,bxl,-1
                 localid = (j-ylg)*Nxtotal + i-xlg+1
-                If (image(localid)==fluid) then
+                if (image(localid)==fluid) then
                     Nstencil3=Nstencil3+1
-                End if
-            End do
-        End do
+                endif
+            enddo
+        enddo
         !set the icount'th fluid node's localid in the 2D patch
         allocate(dir3(Nstencil3))
         icount=0
-        Do j=byu,byl,-1
-            Do i=bxu,bxl,-1
+        do j=byu,byl,-1
+            do i=bxu,bxl,-1
                 localid = (j-ylg)*Nxtotal + i-xlg+1
-                If (image(localid)==fluid) then
+                if (image(localid)==fluid) then
                     icount=icount+1
                     dir3(icount)=localid
-                End if
-            End do
-        End do
+                endif
+            enddo
+        enddo
 
         !Direction 4
         !bound
@@ -547,36 +547,36 @@ contains
         bxu = xu
         byl = yl
         byu = yu
-        if(xl == xmin) bxl = xl + 1 !if most west block
-        if(yu == ymax) byu = yu - 1 !if most north block
+        if (xl == xmin) bxl = xl + 1 !if most west block
+        if (yu == ymax) byu = yu - 1 !if most north block
         !if(xu == xmax) bxu = xu     !if most east block
         !if(yl == ymin) byl = yl     !if most south block
         !count fluid points when sweeping from 4th direction
         Nstencil4=0
-        Do j=byu,byl,-1
-            Do i=bxl,bxu
+        do j=byu,byl,-1
+            do i=bxl,bxu
                 localid = (j-ylg)*Nxtotal + i-xlg+1
-                If (image(localid)==fluid) then
+                if (image(localid)==fluid) then
                     Nstencil4=Nstencil4+1
-                End if
-            End do
-        End do
+                endif
+            enddo
+        enddo
         !set the icount'th fluid node's localid in the 2D patch
         allocate(dir4(Nstencil4))
         icount=0
-        Do j=byu,byl,-1
-            Do i=bxl,bxu
+        do j=byu,byl,-1
+            do i=bxl,bxu
                 localid = (j-ylg)*Nxtotal + i-xlg+1
-                If (image(localid)==fluid) then
+                if (image(localid)==fluid) then
                     icount=icount+1
                     dir4(icount)=localid
-                End if
-            End do
-        End do
+                endif
+            enddo
+        enddo
 
         !construct the deferencial coefficients
-        ALLOCATE(coefI(Nstencil1,6),coefII(Nstencil2,6),coefIII(Nstencil3,6),coefIV(Nstencil4,6))
-        Do i=1,Nstencil1
+        allocate(coefI(Nstencil1,6),coefII(Nstencil2,6),coefIII(Nstencil3,6),coefIV(Nstencil4,6))
+        do i=1,Nstencil1
             localid=dir1(i) 
             !2nd order of accuracy
             coefI(i,1)=1.5d0/ds !x0n
@@ -585,21 +585,21 @@ contains
             coefI(i,4)=1.5d0/ds !y0n
             coefI(i,5)=2.d0/ds  !y1n
             coefI(i,6)=-0.5d0/ds   !y2n
-            if ((image(localid-2)==ghost).OR.(image(localid-1)==WallXp).OR.(image(localid-1)==WallXpYn) &
-            & .OR.(image(localid-1)==WallXpYp)) then !1st order of accuracy in x
+            if ((image(localid-2)==ghost).or.(image(localid-1)==WallXp).or.(image(localid-1)==WallXpYn) &
+            & .or.(image(localid-1)==WallXpYp)) then !1st order of accuracy in x
                 coefI(i,1)=1.d0/ds  !x0n
                 coefI(i,2)=1.d0/ds  !x1n
                 coefI(i,3)=0.d0     !x2n
-            end if
-            if ((image(localid-2*Nxtotal)==ghost).OR.(image(localid-Nxtotal)==WallYp) &
-            & .OR.(image(localid-Nxtotal)==WallXpYp).OR.(image(localid-Nxtotal)==WallXnYp)) then   !1st order of accuracy in y
+            endif
+            if ((image(localid-2*Nxtotal)==ghost).or.(image(localid-Nxtotal)==WallYp) &
+            & .or.(image(localid-Nxtotal)==WallXpYp).or.(image(localid-Nxtotal)==WallXnYp)) then   !1st order of accuracy in y
                 coefI(i,4)=1.d0/ds  !y0n
                 coefI(i,5)=1.d0/ds  !y1n
                 coefI(i,6)=0.d0     !y2n
-            end if
-        End do
+            endif
+        enddo
 
-        Do i=1,Nstencil2
+        do i=1,Nstencil2
             localid=dir2(i)
             !2nd order of accuracy
             coefII(i,1)=-1.5d0/ds !x0n
@@ -608,21 +608,21 @@ contains
             coefII(i,4)=1.5d0/ds !y0n
             coefII(i,5)=2.d0/ds  !y1n
             coefII(i,6)=-0.5d0/ds   !y2n
-            if ((image(localid+2)==ghost).OR.(image(localid+1)==WallXn).OR.(image(localid+1)==WallXnYp) &
-            & .OR.(image(localid+1)==WallXnYn)) then !1st order of accuracy in x
+            if ((image(localid+2)==ghost).or.(image(localid+1)==WallXn).or.(image(localid+1)==WallXnYp) &
+            & .or.(image(localid+1)==WallXnYn)) then !1st order of accuracy in x
                 coefII(i,1)=-1.d0/ds  !x0n
                 coefII(i,2)=-1.d0/ds  !x1n
                 coefII(i,3)=0.d0     !x2n
-            end if
-            if ((image(localid-2*Nxtotal)==ghost).OR.(image(localid-Nxtotal)==WallYp) &
-            & .OR.(image(localid-Nxtotal)==WallXpYp).OR.(image(localid-Nxtotal)==WallXnYp)) then   !1st order of accuracy in y
+            endif
+            if ((image(localid-2*Nxtotal)==ghost).or.(image(localid-Nxtotal)==WallYp) &
+            & .or.(image(localid-Nxtotal)==WallXpYp).or.(image(localid-Nxtotal)==WallXnYp)) then   !1st order of accuracy in y
                 coefII(i,4)=1.d0/ds  !y0n
                 coefII(i,5)=1.d0/ds  !y1n
                 coefII(i,6)=0.d0     !y2n
-            end if
-        End do
+            endif
+        enddo
 
-        Do i=1,Nstencil3
+        do i=1,Nstencil3
             localid=dir3(i)
             !2nd order of accuracy
             coefIII(i,1)=-1.5d0/ds !x0n
@@ -631,21 +631,21 @@ contains
             coefIII(i,4)=-1.5d0/ds !y0n
             coefIII(i,5)=-2.d0/ds  !y1n
             coefIII(i,6)=0.5d0/ds   !y2n
-            if ((image(localid+2)==ghost).OR.(image(localid+1)==WallXn).OR.(image(localid+1)==WallXnYp) &
-            & .OR.(image(localid+1)==WallXnYn)) then !1st order of accuracy in x
+            if ((image(localid+2)==ghost).or.(image(localid+1)==WallXn).or.(image(localid+1)==WallXnYp) &
+            & .or.(image(localid+1)==WallXnYn)) then !1st order of accuracy in x
                 coefIII(i,1)=-1.d0/ds  !x0n
                 coefIII(i,2)=-1.d0/ds  !x1n
                 coefIII(i,3)=0.d0     !x2n
-            end if
-            if ((image(localid+2*Nxtotal)==ghost).OR.(image(localid+Nxtotal)==WallYn) &
-            & .OR.(image(localid+Nxtotal)==WallXnYn).OR.(image(localid+Nxtotal)==WallXpYn)) then   !1st order of accuracy in y
+            endif
+            if ((image(localid+2*Nxtotal)==ghost).or.(image(localid+Nxtotal)==WallYn) &
+            & .or.(image(localid+Nxtotal)==WallXnYn).or.(image(localid+Nxtotal)==WallXpYn)) then   !1st order of accuracy in y
                 coefIII(i,4)=-1.d0/ds  !y0n
                 coefIII(i,5)=-1.d0/ds  !y1n
                 coefIII(i,6)=0.d0     !y2n
-            end if
-        End do
+            endif
+        enddo
 
-        Do i=1,Nstencil4
+        do i=1,Nstencil4
             localid=dir4(i)
             !2nd order of accuracy
             coefIV(i,1)=1.5d0/ds !x0n
@@ -654,18 +654,18 @@ contains
             coefIV(i,4)=-1.5d0/ds !y0n
             coefIV(i,5)=-2.d0/ds  !y1n
             coefIV(i,6)=0.5d0/ds   !y2n
-            if ((image(localid-2)==ghost).OR.(image(localid-1)==WallXp).OR.(image(localid-1)==WallXpYn) &
-            & .OR.(image(localid-1)==WallXpYp)) then !1st order of accuracy in x
+            if ((image(localid-2)==ghost).or.(image(localid-1)==WallXp).or.(image(localid-1)==WallXpYn) &
+            & .or.(image(localid-1)==WallXpYp)) then !1st order of accuracy in x
                 coefIV(i,1)=1.d0/ds  !x0n
                 coefIV(i,2)=1.d0/ds  !x1n
                 coefIV(i,3)=0.d0     !x2n
-            end if
-            if ((image(localid+2*Nxtotal)==ghost).OR.(image(localid+Nxtotal)==WallYn) &
-            & .OR.(image(localid+Nxtotal)==WallXnYn).OR.(image(localid+Nxtotal)==WallXpYn)) then   !1st order of accuracy in y
+            endif
+            if ((image(localid+2*Nxtotal)==ghost).or.(image(localid+Nxtotal)==WallYn) &
+            & .or.(image(localid+Nxtotal)==WallXnYn).or.(image(localid+Nxtotal)==WallXpYn)) then   !1st order of accuracy in y
                 coefIV(i,4)=-1.d0/ds  !y0n
                 coefIV(i,5)=-1.d0/ds  !y1n
                 coefIV(i,6)=0.d0     !y2n
-            end if
-        End do
+            endif
+        enddo
     end subroutine setupPhysicalGrid
 end module physicalGrid
