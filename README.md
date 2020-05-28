@@ -1,18 +1,19 @@
  ```
- _______  ___   ___   _  _______  _______  ______  
-|       ||   | |   | | ||       ||       ||      | 
-|    _  ||   | |   |_| ||  _____||____   ||  _    |
-|   |_| ||   | |      _|| |_____  ____|  || | |   |
-|    ___||   | |     |_ |_____  || ______|| |_|   |
-|   |    |   | |    _  | _____| || |_____ |       |
-|___|    |___| |___| |_||_______||_______||______| 
-
+$$$$$$$\ $$$$$$\ $$\   $$\  $$$$$$\   $$$$$$\  $$$$$$$\  
+$$  __$$\\_$$  _|$$ | $$  |$$  __$$\ $$  __$$\ $$  __$$\ 
+$$ |  $$ | $$ |  $$ |$$  / $$ /  \__|\__/  $$ |$$ |  $$ |
+$$$$$$$  | $$ |  $$$$$  /  \$$$$$$\   $$$$$$  |$$ |  $$ |
+$$  ____/  $$ |  $$  $$<    \____$$\ $$  ____/ $$ |  $$ |
+$$ |       $$ |  $$ |\$$\  $$\   $$ |$$ |      $$ |  $$ |
+$$ |     $$$$$$\ $$ | \$$\ \$$$$$$  |$$$$$$$$\ $$$$$$$  |
+\__|     \______|\__|  \__| \______/ \________|\_______/                                                   
+                                                             
      Parallel Image-based Kinetic Solver (2D)
 ```
 
 ## What is PIKS2D?
 
-PIKS is an open-source 2D parallel pore-scale rarefied gas-flow simulator. 
+PIKS2D is an open-source 2D parallel pore-scale rarefied gas-flow simulator. 
 It solves the linearized gas-kinetic equation on a uniform cartesian grid using the Discrete
 Velocity Method (DVM). It can be run in parallel both OpenMP and MPI. The porous
 structure can be arbitrary complex and and is input into the simulator as an ASCII
@@ -21,7 +22,7 @@ based binary images of '0' (fluid) and '1' (solid).
 ## How do I use PIKS2D?
 
 See the [wiki](https://github.com/iPACT-Platform/PIKS2D/wiki) pages for installation and tutorials.
-See the reference below for the theory and numerical method.
+See the reference below for the theory and numerical method. The full-text PDFs are provided in the directory `reference`.
 
 ## How do I cite PIKS2D?
 
@@ -34,4 +35,4 @@ See the reference below for the theory and numerical method.
 The PIKS2D is licensed under the MIT license, see the file `LICENSE`.
 
 ## Who is funding PIKS2D
-Development of PIKS2D is supported by the Engineering and Physical Sciences Research Council, European Union’s Horizon 2020 Research and Innovation Programme under the Marie Skłodowska-Curie Action.
+Development of PIKS2D is supported by the Engineering and Physical Sciences Research Council, European Union’s Horizon 2020 Marie Skłodowska-Curie Individual Fellowship.
