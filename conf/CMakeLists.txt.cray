@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8)
 
-project(mpi_dvm)
+project(piks2d)
 enable_language(Fortran)
 
 #set(CMAKE_BUILD_TYPE Release)
@@ -29,5 +29,5 @@ set(CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG} ${bounds}")
 set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${dialect}")
 
 file(GLOB_RECURSE sources  src/*.F90)
-add_executable(dvm.x ${sources})
-#target_link_libraries(dvm.x ${MPI_Fortran_LIBRARIES})
+add_executable(piks2d ${sources})
+#target_link_libraries(piks2d ${MPI_Fortran_LIBRARIES})

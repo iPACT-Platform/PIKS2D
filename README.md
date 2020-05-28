@@ -30,9 +30,9 @@ See the reference below for the theory and numerical method. The full-text PDFs 
 * Minh Tuan Ho, Lianhua Zhu, Lei Wu, Peng Wang, Zhaoli Guo, Jingsheng Ma, and Yonghao Zhang. “Pore-Scale Simulations of Rarefied Gas Flows in Ultra-Tight Porous Media.” Fuel 249 (August 1, 2019): 341–51. [DOI: 10.1016/j.fuel.2019.03.106](https://doi.org/10.1016/j.fuel.2019.03.106).
 
 
-## LICENSE
+## License
 
 The PIKS2D is licensed under the MIT license, see the file `LICENSE`.
 
-## Who is funding PIKS2D
+## Who has funded PIKS2D
 Development of PIKS2D is supported by the Engineering and Physical Sciences Research Council, European Union’s Horizon 2020 Marie Skłodowska-Curie Individual Fellowship.

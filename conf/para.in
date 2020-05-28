@@ -19,6 +19,6 @@ saveStep = 1000,
 eps = 1.0d-10/
 
 &flowNml
-Kn = 0.1d0,
+allKnStr = '1.0d-1,5.0d-2,2.0d-2',
 pressDrop = 1.0d-3,
 accom = 1.0/
