@@ -18,6 +18,10 @@ Velocity Method (DVM). It can be run in parallel both OpenMP and MPI. The porous
 structure can be arbitrary complex and and is input into the simulator as an ASCII
 based binary images of '0' (fluid) and '1' (solid).
 
+## How do I use PIKS2D?
+
+See the [wiki](https://github.com/iPACT-Platform/PIKS2D/wiki) pages for installation and tutorials.
+See the reference below for the theory and numerical method.
 
 ## How do I cite PIKS2D?
 
