@@ -30,24 +30,24 @@ piks2d: $(OBJS)
 
 #Compile the modules
 main.o : main.F90 flow.o mpiParams.o solver.o parameters.o
-	$(MPIFC) $(CFLAGS) main.F90
+	$(MPIFC) $(CFLAGS) $<
 parameters.o : parameters.F90 velocityGrid.o physicalGrid.o \
 	mpiParams.o solver.o flow.o string_utility_module.o 
-	$(MPIFC) $(CFLAGS) parameters.F90
+	$(MPIFC) $(CFLAGS) $<
 string_utility_module.o : string_utility_module.F90
-	$(MPIFC) $(CFLAGS) string_utility_module.F90
+	$(MPIFC) $(CFLAGS) $<
 velocityGrid.o : velocityGrid.F90 gaussHermite.o
-	$(MPIFC) $(CFLAGS) velocityGrid.F90
+	$(MPIFC) $(CFLAGS) $<
 physicalGrid.o : physicalGrid.F90
-	$(MPIFC) $(CFLAGS) physicalGrid.F90
+	$(MPIFC) $(CFLAGS) $<
 flow.o : flow.F90 velocityGrid.o physicalGrid.o mpiParams.o
-	$(MPIFC) $(CFLAGS) flow.F90
+	$(MPIFC) $(CFLAGS) $<
 mpiParams.o : mpiParams.F90 physicalGrid.o
-	$(MPIFC) $(CFLAGS) mpiParams.F90
+	$(MPIFC) $(CFLAGS) $<
 solver.o : solver.F90 velocityGrid.o physicalGrid.o flow.o mpiParams.o
-	$(MPIFC) $(CFLAGS) solver.F90
+	$(MPIFC) $(CFLAGS) $<
 gaussHermite.o : gaussHermite.F90
-	$(MPIFC) $(CFLAGS) gaussHermite.F90
+	$(MPIFC) $(CFLAGS) $<
 
 # Build options
 all: piks2d
