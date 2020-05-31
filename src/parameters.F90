@@ -79,7 +79,7 @@ use solver
 use string_utility_module
 implicit none
 
-namelist /physicalNml/ imageFileName, Nx, Ny, xPadRatio, wallExtOrder
+namelist /physicalNml/ imageFileName, Nx, Ny, wallExtOrder
 namelist /velocityNml/ Nc_fundamental, halfRange
 namelist /mpiNml/ mpi_xdim, mpi_ydim, block_repx, block_repy
 namelist /solverNml/ maxStep, chkConvergeStep, saveStep, eps, saveFormat
@@ -98,7 +98,7 @@ contains
         block_repx = 1
         block_repy = 1
         saveFormat = 1 ! default saving format is vti
-        xPadRatio = 0.d0
+        xPadRatio = 0.d0 ! we keep this as 0.0 instead of using input
 
         ! read file called "para.in" using namelist of Fortran 90
         open(unit=PARAFILE,file='para.in',status='old',iostat=ios)
