@@ -141,7 +141,10 @@ do  kni = 1, nKn
         endif
         if ( error <= eps ) then
             call saveFlowField(saveFormat)
-            if(proc ==  master) then
+            if (iStep < chkConvergeStep) then
+                call chkConverge
+            endif
+            if (proc ==  master) then
                 print*, "Converged, exit"
             endif
             exit
