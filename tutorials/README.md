@@ -1,4 +1,5 @@
 
+
 ### How to compile 
 
 Suppose that your are currently in the project directory (the one with `src` and `config` directories in it) and `openmpi` is available
@@ -7,7 +8,7 @@ Suppose that your are currently in the project directory (the one with `src` and
 cd src
 make
 ```
-
+This will create executive file `piks2d` inside the `src`  directory.
 ### How to run simulation
 
 Copy the `tutorials` folder, which consists of a few subfolder for some example cases, to your working directory. In each subfolder of `tutorials` folder, there are an image file and a `para.in`  file. To adapt your simulation setup, you can change the values of parameters in the `para.in` file and replace the image file.
@@ -73,7 +74,7 @@ where
 
 ### How to find the simulation results
 All simulation results are stored in the working directory
-*  A `Results.dat` file logs the screen output, which contains the permeability values for all of the cases, and their convergence history. Below is and example of `Results.dat` file in the directory `tutorials/Sierpinski_carpet/` when the all simulations finish. From the left to right, columns for Knudsen number, ???, dimensionless permeability, residual and iteration number are represented. 
+*  A `Results.dat` file logs the screen output, which contains the permeability values for all of the cases, and their convergence history. Below is and example of `Results.dat` file in the directory `tutorials/Sierpinski_carpet/` when the all simulations finish. From the left to right, columns for Knudsen number, dimensionless mass flow rate, dimensionless permeability, residual and iteration number are represented. 
 ```
    1.000000E-01   9.433632E-02   5.322357E-03   9.056637E-02     10
    1.000000E-01   5.542642E-02   3.127101E-03   4.124594E-02     20
