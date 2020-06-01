@@ -17,7 +17,10 @@ PIKS2D is an open-source 2D parallel pore-scale rarefied gas-flow simulator.
 It solves the linearized gas-kinetic equation on a uniform cartesian grid using the Discrete
 Velocity Method (DVM). It can be run in parallel both OpenMP and MPI. The porous
 structure can be arbitrary complex and and is input into the simulator as an ASCII
-based binary images of '0' (fluid) and '1' (solid).
+based binary images of '0' (fluid) and '1' (solid). An example simulation is shown below using the solver.
+
+<p align="center"><a href="https://ibb.co/v4jqQsy"><img src="https://i.ibb.co/0yG2FB4/dvm-Kn5e-4-U.png" alt="dvm-Kn5e-4-U" border="0" width="480"></a></p>
+
 
 ## How do I use PIKS2D?
 
