@@ -24,7 +24,7 @@ based binary images of '0' (fluid) and '1' (solid). An example simulation is sho
 
 ## How do I use PIKS2D?
 
-See the [wiki](https://github.com/iPACT-Platform/PIKS2D/wiki) pages for installation and tutorials.
+Download the latest packed [release](https://github.com/iPACT-Platform/PIKS2D/releases/) and see the [wiki](https://github.com/iPACT-Platform/PIKS2D/wiki) pages for installation and tutorials.
 See the reference below for the theory and numerical method. The full-text PDFs are provided in the directory `references`.
 
 ## How do I cite PIKS2D?
