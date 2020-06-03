@@ -29,8 +29,8 @@ See the reference below for the theory and numerical method. The full-text PDFs 
 
 ## How do I cite PIKS2D?
 
-* Minh Tuan Ho, Lianhua Zhu, Lei Wu, Peng Wang, Zhaoli Guo, Zhi-Hui Li, and Yonghao Zhang. “A Multi-Level Parallel Solver for Rarefied Gas Flows in Porous Media.” Computer Physics Communications 234 (January 1, 2019): 14–25. [DOI: 10.1016/j.cpc.2018.08.009](https://doi.org/10.1016/j.cpc.2018.08.009).
-* Minh Tuan Ho, Lianhua Zhu, Lei Wu, Peng Wang, Zhaoli Guo, Jingsheng Ma, and Yonghao Zhang. “Pore-Scale Simulations of Rarefied Gas Flows in Ultra-Tight Porous Media.” Fuel 249 (August 1, 2019): 341–51. [DOI: 10.1016/j.fuel.2019.03.106](https://doi.org/10.1016/j.fuel.2019.03.106).
+* Minh Tuan Ho, Lianhua Zhu, Lei Wu, Peng Wang, Zhaoli Guo, Zhi-Hui Li, and Yonghao Zhang. “A Multi-Level Parallel Solver for Rarefied Gas Flows in Porous Media.” Computer Physics Communications 234 (2019): 14–25. [DOI: 10.1016/j.cpc.2018.08.009](https://doi.org/10.1016/j.cpc.2018.08.009).
+* Minh Tuan Ho, Lianhua Zhu, Lei Wu, Peng Wang, Zhaoli Guo, Jingsheng Ma, and Yonghao Zhang. “Pore-Scale Simulations of Rarefied Gas Flows in Ultra-Tight Porous Media.” Fuel 249 (2019): 341–51. [DOI: 10.1016/j.fuel.2019.03.106](https://doi.org/10.1016/j.fuel.2019.03.106).
 
 
 ## License
