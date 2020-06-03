@@ -14,15 +14,18 @@ $$ |     $$$$$$\ $$ | \$$\ \$$$$$$  |$$$$$$$$\ $$$$$$$  |
 ## What is PIKS2D?
 
 PIKS2D is an open-source 2D parallel pore-scale rarefied gas-flow simulator. 
-It solves the linearized gas-kinetic equation on a uniform cartesian grid using the Discrete
+It solves the linearized gas-kinetic equation on a uniform Cartesian grid using the Discrete
 Velocity Method (DVM). It can be run in parallel both OpenMP and MPI. The porous
 structure can be arbitrary complex and and is input into the simulator as an ASCII
-based binary images of '0' (fluid) and '1' (solid).
+based binary images of '0' (fluid) and '1' (solid). An example simulation is shown below using the solver.
+
+<p align="center"><a href="https://ibb.co/v4jqQsy"><img src="https://i.ibb.co/0yG2FB4/dvm-Kn5e-4-U.png" alt="dvm-Kn5e-4-U" border="0" width="480"></a></p>
+
 
 ## How do I use PIKS2D?
 
 See the [wiki](https://github.com/iPACT-Platform/PIKS2D/wiki) pages for installation and tutorials.
-See the reference below for the theory and numerical method. The full-text PDFs are provided in the directory `reference`.
+See the reference below for the theory and numerical method. The full-text PDFs are provided in the directory `references`.
 
 ## How do I cite PIKS2D?
 
@@ -35,4 +38,4 @@ See the reference below for the theory and numerical method. The full-text PDFs 
 The PIKS2D is licensed under the MIT license, see the file `LICENSE`.
 
 ## Who has funded PIKS2D
-Development of PIKS2D received funding from Engineering and Physical Sciences Research Council, European Union’s Horizon 2020 Marie Skłodowska-Curie Individual Fellowship and the “Advanced Hybrid Method for Post-Scale Simulation of Shale Gas Flows”, a global partnership project grant funded by [KFUPM](http://www.kfupm.edu.sa).
+Development of PIKS2D received funding from Engineering and Physical Sciences Research Council, European Union’s Horizon 2020 Marie Skłodowska-Curie Individual Fellowship and the “Advanced Hybrid Method for Pore-Scale Simulation of Shale Gas Flows”, a global partnership project grant funded by [KFUPM](http://www.kfupm.edu.sa).
